@@ -1,0 +1,18 @@
+{
+  "name": "pip-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/web", "packages/domain", "packages/harness"],
+  "engines": { "node": ">=24.13.0" },
+  "scripts": {
+    "dev": "npm run dev --workspace @pip/web",
+    "build": "npm run build --workspace @pip/web",
+    "start": "npm run start --workspace @pip/web",
+    "typecheck": "tsc --noEmit -p packages/domain/tsconfig.json && tsc --noEmit -p packages/harness/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
+    "test": "vitest run",
+    "harness:demo": "node packages/harness/src/demo.ts",
+    "agent:demo": "node packages/harness/src/agent-demo.ts",
+    "agent:run": "node --env-file-if-exists=.env.harness scripts/run-agent.mjs"
+  },
+  "devDependencies": { "@types/node": "^24.0.0", "typescript": "^5.9.0", "vitest": "5.0.5" }
+}
