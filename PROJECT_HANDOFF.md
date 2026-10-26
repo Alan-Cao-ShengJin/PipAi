@@ -2,6 +2,8 @@
 
 Updated: 26 October 2026  
 Status: Local Stage 1 web prototype, harness foundation, public-market pair study and persistent proactive research runtime implemented. Optional model adapter added; no real model verification, live account connections or trading.  
+
+Connectivity update: `/connect` now connects MetaMask to **Hyperliquid mainnet for read-only account checks**, with automatic owner-account reads and a fresh green Mainnet / Read only indicator. No separate account, network switch or API trading approval is required. Details cover core perps and spot, explicitly excluding builder-deployed markets. The separate local execution package remains testnet-only and disarmed; mainnet order submission is absent. See [Hyperliquid connectivity](docs/HYPERLIQUID_CONNECTIVITY.md). The scripted workspace and proactive research runtime remain research/paper-only.
 Project name: Not selected. “AiFi” is a working category label.
 
 ## 1. Product in one paragraph
@@ -32,7 +34,7 @@ Build a retail-facing AI investing and trading workspace that reduces the time u
 | Starting price hypothesis | US$20/month with bounded compute; not unlimited autonomous deep research |
 | Investment performance | No guaranteed profits or capital protection; honest reporting and reliable operation remain essential |
 | Brand | Cute, approachable and trustworthy, while credible for serious money decisions; no final name or availability checks |
-| Interface design | Dark neutral theme inspired by minimal conversation workspaces such as ChatGPT: restrained accents, clean system typography, focused conversation and little decoration |
+| Interface design | Minimal black-and-white chat with DM Sans, using the founder's ChatGPT screenshot as the proportion reference. One 768px conversation column, content-sized pill-shaped bubbles, soft tonal contrast, a filled bottom message bar, one wallet button and one menu. A compact Hyperliquid connection link uses a neon green light only after a fresh account read verifies the linked testnet account and current agent approval; stale, missing and failed checks stay neutral. The light indicates connection, not enabled trading. Testnet remains explicitly labeled; the link opens connection setup directly. This green light is the requested exception to monochrome styling. No sidebar, search, profile area or read receipts. Assistant bubbles use up to 88% of the column (676px cap), user bubbles 86% (660px cap); same-speaker messages have tighter spacing. One session timestamp appears above the conversation. A jump-to-latest button appears only when scrolled away. Summary and reset live inside the menu; paper approvals appear only when relevant. The current reply engine remains a scripted paper demo. |
 | Agent harness | Pip-owned context, tool policy, evidence and usage boundaries, informed by source review; provider adapters and durable orchestration remain swappable |
 
 These are product directions, not evidence that a secure live service, commercial integration or licence is already available to this project.

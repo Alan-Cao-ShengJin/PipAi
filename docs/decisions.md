@@ -1,5 +1,23 @@
 # Engineering decisions
 
+## 0007 ? Mainnet connection checks without trading authority
+
+Date: 26 October 2026. Status: implemented locally.
+
+The founder requested skipping testnet and explicitly selected connection and read-only checks only. Web onboarding now signs in the existing browser wallet and automatically reads that owner's Hyperliquid mainnet account. No API trading key approval or chain switch is needed. A fixed, authenticated `mainnet.account.read` gateway provides bounded public account reads; it has no mainnet exchange client or signing key. The fresh green indicator is labelled Mainnet / Read only. Core perps and spot details have explicit scope; builder-deployed markets are excluded. The previous testnet execution package, history and authorities remain isolated and are not migrated to mainnet. Mainnet trades and transfers remain unavailable.
+
+## 0006 — Existing wallet support and restricted Hyperliquid signer
+
+Date: 26 October 2026. Status: local testnet tools implemented; production deployment and funded venue verification remain open.
+
+The founder initially selected a separate user-owned trading wallet/account, then clarified that the existing MetaMask account must also work. Verify ownership when linking the trading account, but allow it to equal the primary sign-in account. Only the API/agent wallet must always be a separate address. Record the actual address separation in the wallet-signed mandate; do not claim a shared account has isolated capital. An API wallet supplies delegated signing; it is not the funded trading account. Do not use a subaccount label as a capital-isolation guarantee.
+
+Web onboarding uses one **Connect wallet** button that opens the installed browser wallet. No backend token, API key, address or other credential is typed or pasted by the user. Backend setup remains server-side. Browser-bound ownership challenges establish an HttpOnly session; optional trading permissions are separate and remain wallet-authorized. Reconnection does not recreate identity or grant trading authority.
+
+Keep the worker's model-visible tool client separate from the signer process and control credential. Require wallet-signed versioned mandates, exact proposal approval by default, fresh independent risk checks, durable single submission and explicit reconciliation. No model tool can withdraw, transfer, set account mode, set leverage, change fees or sign arbitrary payloads. Only core-perpetual IOC orders and recorded-order cancellations are implemented, on testnet with execution disarmed by default. Other products/account modes fail closed. Initial mandates expire within 24 hours. A revoked/expired agent must be replaced with a fresh key while preserving history.
+
+See [implementation, setup, threat model and launch gates](HYPERLIQUID_CONNECTIVITY.md). Application permissions are not a cryptographic restriction on a stolen venue API key. No customer/mainnet funds are enabled by this decision.
+
 ## 0001 — Own the application harness and isolate provider transports
 
 Date: 26 October 2026. Status: implemented for the research boundary foundation; durable engine and provider adapter still open.

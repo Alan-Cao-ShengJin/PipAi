@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "plugins": [{ "name": "next" }],
     "incremental": true,

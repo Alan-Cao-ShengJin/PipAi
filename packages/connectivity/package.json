@@ -1,0 +1,8 @@
+{
+  "name": "@pip/connectivity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/client.ts", "./browser": "./src/browser.ts" },
+  "dependencies": { "@nktkas/hyperliquid": "0.33.3", "viem": "2.57.11", "decimal.js": "10.6.0", "zod": "4.6.7" }
+}

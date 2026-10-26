@@ -8,6 +8,7 @@
     "start": "next start --hostname 127.0.0.1"
   },
   "dependencies": {
+    "@pip/connectivity": "0.1.0",
     "@pip/domain": "0.1.0",
     "next": "16.4.3",
     "react": "19.3.1",

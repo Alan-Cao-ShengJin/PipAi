@@ -17,23 +17,23 @@ export type Profile = z.infer<typeof ProfileSchema>;
 export const steps = ["goal", "capitalCents", "horizon", "risk", "liquidity", "lossReviewPct"] as const;
 export type Step = (typeof steps)[number];
 export const questions: Record<Step, { title: string; prompt: string; placeholder: string; choices: { label: string; value: string }[] }> = {
-  goal: { title: "Your goal", prompt: "What would you like your money to help you do? Tell me your goal in your own words. We’ll use a paper portfolio to explore the workflow.", placeholder: "I’d like to grow my savings over time…", choices: [
+  goal: { title: "Your goal", prompt: "What would you like your money to do? We’ll explore it with a paper plan.", placeholder: "I’d like to grow my savings over time…", choices: [
     { label: "Grow my savings", value: "I want to grow my savings over time while understanding the risks." },
     { label: "Explore a strategy", value: "I want to explore a trading strategy in a paper portfolio before using real money." },
   ] },
-  capitalCents: { title: "Paper capital", prompt: "How much simulated capital would you like to start with, in US dollars? This is pretend money, separate from any wallet. Enter an amount between $100 and $1,000,000.", placeholder: "e.g. 10000", choices: [
+  capitalCents: { title: "Paper capital", prompt: "How much pretend money should we start with? Choose an amount from $100 to $1,000,000.", placeholder: "Amount in USD", choices: [
     { label: "$5,000", value: "5000" }, { label: "$10,000", value: "10000" }, { label: "$25,000", value: "25000" },
   ] },
-  horizon: { title: "Time horizon", prompt: "What time horizon should this example plan work around?", placeholder: "Choose weeks, months, or years", choices: [
+  horizon: { title: "Time horizon", prompt: "How long are you thinking?", placeholder: "Choose weeks, months, or years", choices: [
     { label: "Weeks", value: "weeks" }, { label: "Months", value: "months" }, { label: "Years", value: "years" },
   ] },
-  risk: { title: "Risk preference", prompt: "How would you describe your willingness to take risk? This prototype uses your choice to draft limits for you to review. It is not a complete suitability assessment.", placeholder: "Choose careful, balanced, or growth", choices: [
+  risk: { title: "Risk preference", prompt: "How much risk feels comfortable for this paper plan?", placeholder: "Choose careful, balanced, or growth", choices: [
     { label: "Careful", value: "careful" }, { label: "Balanced", value: "balanced" }, { label: "Growth focused", value: "growth" },
   ] },
-  liquidity: { title: "Access to capital", prompt: "Might you need this allocated capital back in the next three months?", placeholder: "Choose soon or flexible", choices: [
+  liquidity: { title: "Access to capital", prompt: "Might you need this money in the next three months?", placeholder: "Choose soon or flexible", choices: [
     { label: "Yes, I may need it", value: "soon" }, { label: "No, I have flexibility", value: "flexible" },
   ] },
-  lossReviewPct: { title: "Review trigger", prompt: "What paper portfolio decline should trigger a review and pause on new risk? This is a monitoring trigger; it cannot guarantee a maximum loss.", placeholder: "Choose 5, 10, or 20", choices: [
+  lossReviewPct: { title: "Review trigger", prompt: "What decline should prompt a pause and review? This is a review trigger, not a guaranteed loss limit.", placeholder: "Choose 5, 10, or 20", choices: [
     { label: "5% decline", value: "5" }, { label: "10% decline", value: "10" }, { label: "20% decline", value: "20" },
   ] },
 };
@@ -206,7 +206,7 @@ export function applyCommand(input: DemoState, command: Command): DemoState {
     if (next) message(state, "assistant", questions[next].prompt);
     else {
       state.mandate = draftMandate(state.profile);
-      message(state, "assistant", "Your draft mandate is ready. Review the exact limits before approving it. Approval creates a paper portfolio and an illustrative proposal; it grants no trading access.");
+      message(state, "assistant", "Your paper plan is ready below. Review the limits before approving it.");
       event(state, "Mandate drafted", "Your preferences became a draft. No authority has been granted.");
     }
   } else if (command.type === "approve-mandate") {
@@ -217,7 +217,7 @@ export function applyCommand(input: DemoState, command: Command): DemoState {
     state.proposal = makeProposal(state);
     state.usage.researchRuns++;
     message(state, "user", "I approve this paper-only mandate and its stated limits.");
-    message(state, "assistant", "Your paper mandate is approved. I’ve prepared an illustrative proposal with independent checks. You can inspect it in Portfolio before recording any simulated decision.");
+    message(state, "assistant", "Your paper plan is approved. Here’s an example allocation to review. It uses simulated money and fixed sample prices.");
     event(state, "Paper mandate approved", "Version 1 approved. Live execution remains unavailable.");
     event(state, "Illustrative proposal prepared", "Synthetic fixture, zero model calls, $0 compute cost.");
   } else if (command.type === "apply-paper") {
@@ -247,7 +247,7 @@ export function applyCommand(input: DemoState, command: Command): DemoState {
     state.proposal = makeProposal(state);
     state.usage.researchRuns++;
     message(state, "user", "Review my paper portfolio.");
-    message(state, "assistant", "A new scripted review is ready in Portfolio. It uses the same synthetic prices; it is not live research. Daily scheduling will be added in a later milestone.");
+    message(state, "assistant", "Here’s another paper review. It uses the same sample prices, not live research.");
     event(state, "Manual paper review", "Recorded a scripted review against the current portfolio snapshot.");
   } else if (command.type === "pause") {
     if (state.mandate?.status !== "approved") throw new DomainError("Approve a paper mandate before changing its review controls.");

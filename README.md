@@ -1,6 +1,8 @@
 # Pip
 
-Local prototype for a personal investing workspace. The current web app uses a scripted guide, explicit paper mandate approval, a simulated portfolio, independent checks and local demo-session storage. It does not connect to a wallet, call an LLM or send orders.
+Local prototype for a personal investing workspace. The paper workspace uses a scripted guide, explicit paper mandate approval, a simulated portfolio, independent checks and local demo-session storage. That paper flow does not connect to a wallet, call an LLM or send orders.
+
+A [wallet and Hyperliquid mainnet connection flow](docs/HYPERLIQUID_CONNECTIVITY.md) is available at `/connect`. Connect MetaMask once; Pip automatically reads that owner's mainnet account. The green indicator means fresh **read-only** account access, with no trading key approval, chain switch, trades or transfers. The separate execution tooling remains testnet-only and disarmed by default; the paper demo and research worker remain separate. Follow the connection guide for local backend setup.
 
 ## Run on Windows
 
@@ -32,6 +34,7 @@ The agent demo is also offline. It demonstrates proactive multi-step research, s
 - `apps/web`: Next.js web app and local demo API.
 - `packages/domain`: Mandates, paper accounting, proposals and deterministic checks.
 - `packages/harness`: Initial research context, tool and usage boundaries.
+- `packages/connectivity`: Dedicated wallet linking, testnet reads, restricted execution signer and model-facing tool client.
 - [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md): Agreed scope, build stages and open decisions.
 - [docs/HARNESS_DESIGN.md](docs/HARNESS_DESIGN.md): Open-source study, harness design and next implementation gates.
 - [docs/PROACTIVE_AGENT.md](docs/PROACTIVE_AGENT.md): Persistent research runtime, daily continuation, provider setup, checks and remaining gaps.

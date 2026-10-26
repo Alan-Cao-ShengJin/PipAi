@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CommandSchema, DomainError } from "@pip/domain";
 import { getStore, SESSION_COOKIE, SESSION_SECONDS } from "@/server/store";
+import { isSameOrigin } from "@/server/request-origin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (request.headers.get("origin") !== request.nextUrl.origin) throw new DomainError("This local demo only accepts same-origin requests.", 403);
+    if (!isSameOrigin(request)) throw new DomainError("This local demo only accepts same-origin requests.", 403);
     if (!request.headers.get("content-type")?.startsWith("application/json")) throw new DomainError("Send an application/json command.", 415);
     const raw = await request.text();
     if (Buffer.byteLength(raw) > 8192) throw new DomainError("The command is too large.", 413);

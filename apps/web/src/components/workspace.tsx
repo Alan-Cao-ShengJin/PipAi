@@ -1,51 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, CheckCheck, ChevronRight, CircleHelp, Clock3, CloudCheck, Compass, FileCheck2, History, Leaf, LoaderCircle, LockKeyhole, MessageCircle, Pause, PieChart, Play, Plus, RefreshCw, ShieldCheck, Sparkles, Wallet, X } from "lucide-react";
-import { currentStep, DemoStateSchema, equityCents, questions, steps, type Command, type DemoState, type Mandate, type Proposal } from "@pip/domain";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ArrowDown, ArrowUp, Check, LoaderCircle, MoreHorizontal, X } from "lucide-react";
+import { checkProposal, currentStep, DemoStateSchema, equityCents, questions, type Command, type DemoState, type Mandate } from "@pip/domain";
+import { WalletButton } from "./wallet-button";
+import type { WalletState } from "./browser-wallet";
+import { HyperliquidStatus } from "./hyperliquid-status";
 
-type Tab = "conversation" | "portfolio" | "mandate" | "activity";
 type Action = Command extends infer C ? C extends Command ? Omit<C, "expectedRevision"> : never : never;
 const money = (cents: number, exact = false) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: exact ? 2 : 0 }).format(cents / 100);
-const titleCase = (value: string) => value[0].toUpperCase() + value.slice(1);
 const riskLabels = { careful: "Careful", balanced: "Balanced", growth: "Growth focused" };
-const tabs = [
-  { id: "conversation" as const, label: "Conversation", icon: MessageCircle },
-  { id: "portfolio" as const, label: "Paper portfolio", icon: PieChart },
-  { id: "mandate" as const, label: "Your mandate", icon: ShieldCheck },
-  { id: "activity" as const, label: "Activity", icon: History },
-];
-const headings: Record<Tab, { title: string; description: string }> = {
-  conversation: { title: "What are your investing goals?", description: "Start with your goals. Build a mandate, then explore a paper plan." },
-  portfolio: { title: "Paper portfolio", description: "Your allocation, proposals, and simulated decisions." },
-  mandate: { title: "Your mandate", description: "Review the goals and limits your agent will work within." },
-  activity: { title: "Activity", description: "Your approvals, reviews, and paper decisions." },
-};
-
-function PipMark({ small = false }: { small?: boolean }) {
-  return <span className={`pip-mark ${small ? "small" : ""}`} aria-hidden="true"><Compass size={small ? 17 : 23} strokeWidth={1.6} /></span>;
-}
-function Pill({ children, tone = "green" }: { children: ReactNode; tone?: "green" | "neutral" | "amber" }) {
-  return <span className={`pill ${tone}`}>{children}</span>;
-}
-function EmptyPanel({ icon, title, children, action }: { icon: ReactNode; title: string; children: ReactNode; action?: ReactNode }) {
-  return <div className="empty-panel"><span className="empty-icon">{icon}</span><h2>{title}</h2><p>{children}</p>{action}</div>;
+function conversationTime(value: string) {
+  const date = new Date(value);
+  const day = date.toDateString() === new Date().toDateString() ? "Today" : new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+  return `${day} ${new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(date)}`;
 }
 
 export function Workspace() {
   const [state, setState] = useState<DemoState | null>(null);
-  const [tab, setTab] = useState<Tab>("conversation");
-  const [draft, setDraft] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [resetOpen, setResetOpen] = useState(false);
-  const end = useRef<HTMLDivElement>(null);
-  const resetButton = useRef<HTMLButtonElement>(null);
-  const cancelReset = useRef<HTMLButtonElement>(null);
+  const [draft, setDraft] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
+  const [pendingAnswer, setPendingAnswer] = useState<string | null>(null);
+  const [walletState, setWalletState] = useState<WalletState | null>(null);
+  const [awayFromLatest, setAwayFromLatest] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false), [summaryOpen, setSummaryOpen] = useState(false), [resetOpen, setResetOpen] = useState(false);
+  const end = useRef<HTMLDivElement>(null), menu = useRef<HTMLDivElement>(null);
+  const summary = useRef<HTMLDialogElement>(null), reset = useRef<HTMLDialogElement>(null), input = useRef<HTMLTextAreaElement>(null);
+  function scrollToLatest() {
+    end.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "end" });
+  }
 
   async function load(signal?: AbortSignal) {
     const response = await fetch("/api/v1/workspace", { cache: "no-store", signal });
-    if (!response.ok) throw new Error("The workspace could not be opened. Please try again.");
+    if (!response.ok) throw new Error("Couldn’t open Pip. Please try again.");
     setState(DemoStateSchema.parse(await response.json()));
   }
   useEffect(() => {
@@ -53,113 +39,121 @@ export function Workspace() {
     load(controller.signal).catch((e: Error) => { if (e.name !== "AbortError") setError(e.message); });
     return () => controller.abort();
   }, []);
-  useEffect(() => { if (end.current) end.current.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [state?.messages.length, tab]);
   useEffect(() => {
-    if (!resetOpen) return;
-    cancelReset.current?.focus();
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setResetOpen(false); resetButton.current?.focus(); }
-      if (event.key === "Tab") {
-        event.preventDefault();
-        const buttons = document.querySelectorAll<HTMLButtonElement>("[role=dialog] button");
-        const index = Array.from(buttons).indexOf(document.activeElement as HTMLButtonElement);
-        buttons[(index + (event.shiftKey ? buttons.length - 1 : 1)) % buttons.length]?.focus();
-      }
-    };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [resetOpen]);
+    scrollToLatest();
+  }, [state?.messages.length, pendingAnswer]);
+  useEffect(() => {
+    if (!input.current) return;
+    input.current.style.height = "auto";
+    input.current.style.height = `${Math.min(input.current.scrollHeight, 160)}px`;
+  }, [draft]);
+  useEffect(() => { if (summaryOpen) summary.current?.showModal(); else summary.current?.close(); }, [summaryOpen]);
+  useEffect(() => { if (resetOpen) reset.current?.showModal(); else reset.current?.close(); }, [resetOpen]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node)) setMenuOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { setMenuOpen(false); menu.current?.querySelector("button")?.focus(); } };
+    window.addEventListener("pointerdown", outside); window.addEventListener("keydown", escape);
+    return () => { window.removeEventListener("pointerdown", outside); window.removeEventListener("keydown", escape); };
+  }, [menuOpen]);
 
   async function run(command: Action): Promise<boolean> {
     if (!state || busy) return false;
     setBusy(true); setError(null);
     try {
       const response = await fetch("/api/v1/workspace", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...command, expectedRevision: state.revision }) });
-      const payload = await response.json();
-      if (!response.ok) {
-        if (response.status === 409 || response.status === 401) await load();
-        throw new Error(payload.error ?? "Could not save this change.");
-      }
-      setState(DemoStateSchema.parse(payload));
-      return true;
+      const body = await response.json();
+      if (!response.ok) { if (response.status === 409 || response.status === 401) await load(); throw new Error(body.error ?? "Couldn’t save that. Please try again."); }
+      setState(DemoStateSchema.parse(body)); return true;
     } catch (e) { setError(e instanceof Error ? e.message : "Something went wrong. Please try again."); return false; }
     finally { setBusy(false); }
   }
-  const step = state ? currentStep(state.profile) : null;
-  const complete = state ? steps.filter((s) => state.profile[s] !== undefined).length : 0;
+  const step = state ? currentStep(state.profile) : null, mandate = state?.mandate;
+  const proposal = state?.proposal;
+  const checks = state && proposal?.status === "proposed" ? checkProposal(state, proposal) : [];
   async function answer(value: string) {
-    if (step && await run({ type: "answer", step, value })) setDraft("");
+    if (!step || busy) return;
+    setPendingAnswer(value);
+    try {
+      if (await run({ type: "answer", step, value })) {
+        setDraft(""); requestAnimationFrame(() => input.current?.focus());
+      }
+    } finally { setPendingAnswer(null); }
   }
-  function submit(event: FormEvent) { event.preventDefault(); if (draft.trim()) void answer(draft); }
-  const profile = state?.profile;
-  const mandate = state?.mandate;
-  const approved = mandate?.status === "approved";
-  const heading = headings[tab];
+  function submit(event: FormEvent) { event.preventDefault(); if (draft.trim() && !busy) void answer(draft.trim()); }
 
-  return <div className="app-shell">
-    <a href="#workspace" className="skip-link">Skip to workspace</a>
-    <aside className="sidebar">
-      <a className="brand" href="/" aria-label="Pip home"><PipMark /><span>Pip</span></a>
-      <div className="workspace-label">Workspace</div>
-      <nav aria-label="Main navigation">{tabs.map(({ id, icon: Icon, label }) => <button key={id} onClick={() => { setTab(id); setError(null); }} className={`nav-item ${tab === id ? "active" : ""}`} aria-current={tab === id ? "page" : undefined}>
-        <Icon size={18} strokeWidth={1.7} /><span>{label}</span>{id === "mandate" && mandate?.status === "draft" && <span className="nav-dot" aria-label="Draft ready" />}
-      </button>)}</nav>
-      <div className="sidebar-bottom">
-        <button ref={resetButton} className="new-demo" onClick={() => setResetOpen(true)} disabled={!state || busy}><Plus size={17} /> New demo</button>
-        <div className="sidebar-profile"><span className="avatar">Y</span><div><strong>Your private demo</strong><small>Local prototype · working name</small></div><LockKeyhole size={14} /></div>
+  return <div className="pip-app">
+    <a href="#conversation" className="skip-link">Skip to conversation</a>
+    <header className="pip-header">
+      <div className="pip-header-brand"><a className="pip-brand" href="/" aria-label="Pip home">pip.</a><span className="pip-demo-label">Scripted paper demo</span></div>
+      <div className="pip-header-actions"><HyperliquidStatus refreshKey={walletState} /><WalletButton compact onChange={setWalletState} />
+        <div className="pip-menu" ref={menu}><button className="icon-button" aria-label="More options" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><MoreHorizontal size={20} strokeWidth={1.6} /></button>
+          {menuOpen && <div className="pip-menu-items"><button disabled={!state} onClick={() => { setMenuOpen(false); setSummaryOpen(true); }}>Your summary</button><a href="/connect">Wallet settings</a><button disabled={!state || busy} onClick={() => { setMenuOpen(false); setResetOpen(true); }}>Start over…</button></div>}
+        </div>
       </div>
-    </aside>
-    <div className="main-shell">
-      <header className="topbar"><div className="breadcrumbs"><strong>{tabs.find((t) => t.id === tab)?.label}</strong></div><div className="topbar-right"><span className="saved"><CloudCheck size={15} />{state ? "Saved locally" : "Opening workspace"}</span><Pill tone="neutral"><span className="status-dot" /> Paper demo</Pill></div></header>
-      <main id="workspace" className="main-content">
-        <div className={`page-heading ${tab === "conversation" ? "conversation-heading" : ""}`}><h1>{heading.title}</h1><p>{heading.description}</p></div>
-        <div className="demo-notice"><LockKeyhole size={14} /><p>Paper demo. Scripted responses and sample prices. No real trades.</p></div>
-        {error && <div className="error-banner" role="alert"><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError(null)}><X size={16} /></button>{!state && <button onClick={() => void load().then(() => setError(null)).catch((e: Error) => setError(e.message))}>Try again</button>}</div>}
-        {!state ? <div className="loading-state" role="status"><LoaderCircle className="spin" size={25} /><p>Opening your workspace…</p></div> : <>
-          {tab === "conversation" && <div className="workspace-grid">
-            <section className="card conversation-card" aria-label="Conversation with Pip">
-              <div className="card-top"><div className="agent-identity"><PipMark small /><div><h2>Pip</h2><p>Scripted demo</p></div></div><span className="conversation-status">{approved ? "Mandate approved" : `${complete} of 6 questions`}</span></div>
-              <div className="message-list" role="log" aria-label="Conversation history" aria-live="polite">{state.messages.map((message) => <div key={message.id} className={`message ${message.role}`}>
-                {message.role === "assistant" && <span className="message-mark"><PipMark small /></span>}
-                <div><span className="message-label">{message.role === "assistant" ? "Pip" : "You"}</span><p>{message.content}</p></div>
-              </div>)}<div ref={end} /></div>
-              {step ? <div className="composer-area"><div className="quick-choices">{questions[step].choices.map((choice) => <button key={choice.value} disabled={busy} onClick={() => void answer(choice.value)}>{choice.label}<ArrowUpRight size={13} /></button>)}</div><form className="composer" onSubmit={submit}><label htmlFor="message" className="sr-only">{questions[step].title}</label><input id="message" name="message" autoComplete="off" maxLength={1200} inputMode={step === "capitalCents" || step === "lossReviewPct" ? "decimal" : "text"} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={questions[step].placeholder} disabled={busy} /><button className="send-button" aria-label="Send answer" disabled={busy || !draft.trim()}>{busy ? <LoaderCircle className="spin" size={18} /> : <ArrowRight size={19} />}</button></form><p className="composer-note"><LockKeyhole size={11} /> Your answers stay in this local demo. No model receives them.</p></div> : <div className="conversation-next"><div><FileCheck2 size={20} /><p>{approved ? "Your mandate is approved. Explore your paper proposal." : "Your draft mandate is ready."}</p></div><button className="primary-button" onClick={() => setTab(approved ? "portfolio" : "mandate")}>{approved ? "Explore paper portfolio" : "Review your mandate"}<ArrowRight size={16} /></button></div>}
-            </section>
-            <div className="side-stack"><section className="card profile-card"><h2>Your profile</h2><div className="progress-track" aria-label={`${complete} of 6 profile questions answered`}>{steps.map((s) => <span key={s} className={profile?.[s] !== undefined ? "filled" : ""} />)}</div><dl className="profile-facts"><div><dt>Paper capital</dt><dd>{profile?.capitalCents ? money(profile.capitalCents) : "Not set"}</dd></div><div><dt>Time horizon</dt><dd>{profile?.horizon ? titleCase(profile.horizon) : "Not set"}</dd></div><div><dt>Risk preference</dt><dd>{profile?.risk ? riskLabels[profile.risk] : "Not set"}</dd></div><div><dt>Mandate</dt><dd><span className={`fact-status ${mandate ? "ready" : ""}`}>{mandate ? titleCase(mandate.status) : "Not set"}</span></dd></div></dl>{mandate && <button className="text-button" onClick={() => setTab("mandate")}>View mandate <ArrowRight size={14} /></button>}</section>
-            </div>
-          </div>}
-          {tab === "mandate" && (mandate ? <MandateView mandate={mandate} busy={busy} onApprove={async () => { if (await run({ type: "approve-mandate", mandateId: mandate.id })) setTab("portfolio"); }} /> : <section className="card"><EmptyPanel icon={<ShieldCheck size={30} />} title="Complete your profile first." action={<button className="primary-button" onClick={() => setTab("conversation")}>Continue the conversation<ArrowRight size={16} /></button>}>Your answers become a draft mandate with clear limits. Nothing is approved automatically.</EmptyPanel></section>)}
-          {tab === "portfolio" && (state.portfolio && mandate ? <PortfolioView state={state} busy={busy} onApply={() => void run({ type: "apply-paper", proposalId: state.proposal!.id })} onReview={() => void run({ type: "review" })} onPause={() => void run({ type: "pause", paused: !state.paused })} /> : <section className="card"><EmptyPanel icon={<Wallet size={30} />} title="Create your paper portfolio" action={<button className="primary-button" onClick={() => setTab(mandate ? "mandate" : "conversation")}>{mandate ? "Review your mandate" : "Build your paper plan"}<ArrowRight size={16} /></button>}>Approve your mandate to open a separate paper portfolio. Your real Hyperliquid account is not connected.</EmptyPanel></section>)}
-          {tab === "activity" && <div className="workspace-grid"><section className="card activity-card"><div className="card-top"><h2>Recent activity</h2><Pill tone="neutral">{state.activity.length} events</Pill></div><ol className="activity-list">{state.activity.map((item, index) => <li key={item.id}><span className={`activity-marker ${index === 0 ? "latest" : ""}`}><Check size={13} /></span><div><time dateTime={item.createdAt}>{new Intl.DateTimeFormat("en-SG", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short", timeZone: "Asia/Singapore" }).format(new Date(item.createdAt))} SGT</time><h3>{item.title}</h3><p>{item.detail}</p></div></li>)}</ol></section><div className="side-stack"><section className="card profile-card"><div className="section-label"><span>Usage</span><Sparkles size={17} /></div><div className="usage-number">$0<span>.00</span></div><p className="muted">Actual model cost in this demo</p><dl className="profile-facts"><div><dt>Model calls</dt><dd>0</dd></div><div><dt>Scripted reviews</dt><dd>{state.usage.researchRuns} / 20</dd></div><div><dt>Daily schedule</dt><dd>Not active yet</dd></div><div><dt>Paper decisions</dt><dd>{state.orders.length} fills</dd></div></dl><p className="fine-print">The daily review worker and paid research are later milestones. The demo only runs on your request.</p></section></div></div>}
-        </>}
-        <footer className="page-footer"><span>Demo data saved locally</span><span>USD · Paper only</span></footer>
-      </main>
-    </div>
-    {resetOpen && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="reset-title"><span className="empty-icon"><RefreshCw size={25} /></span><h2 id="reset-title">Start a new demo?</h2><p>This replaces your current demo conversation, mandate, paper portfolio, and activity. Other browser sessions are unaffected.</p><div className="modal-actions"><button ref={cancelReset} className="secondary-button" disabled={busy} onClick={() => { setResetOpen(false); resetButton.current?.focus(); }}>Cancel</button><button className="primary-button" disabled={busy} onClick={async () => { if (await run({ type: "reset" })) { setResetOpen(false); setTab("conversation"); setDraft(""); resetButton.current?.focus(); } }}>Start fresh<ArrowRight size={15} /></button></div></section></div>}
+    </header>
+
+    <main id="conversation" className="pip-conversation">
+      <div className="pip-thread" tabIndex={0} aria-label="Conversation history" onScroll={e => { const thread = e.currentTarget; setAwayFromLatest(thread.scrollHeight - thread.scrollTop - thread.clientHeight > 100); }}><div className="pip-thread-inner">
+      {!state ? <div className="pip-loading" role="status"><LoaderCircle size={20} className="spin" /><span>Opening Pip…</span></div> : <>
+        <time className="pip-conversation-time" dateTime={state.createdAt}>{conversationTime(state.createdAt)}</time>
+        <div className="pip-messages" role="log" aria-label="Conversation with Pip" aria-live="polite" aria-relevant="additions">
+          {state.messages.map(message => <ChatMessage key={message.id} role={message.role} content={message.content} />)}
+          {pendingAnswer && <>
+            <ChatMessage role="user" content={pendingAnswer} />
+            <div className="pip-replying" role="status"><span className="pip-typing" aria-hidden="true"><i /><i /><i /></span><span className="sr-only">Pip is preparing a reply</span></div>
+          </>}
+        </div>
+        {step && step !== "goal" && step !== "capitalCents" && <div className="pip-suggestions" aria-label="Suggested replies">{questions[step].choices.map(choice => <button key={choice.value} disabled={busy} onClick={() => void answer(choice.value)}>{choice.label}</button>)}</div>}
+        {mandate?.status === "draft" && <section className="inline-plan" aria-labelledby="plan-title"><span className="small-label">Paper plan</span><h2 id="plan-title">Here’s what we’ll work with.</h2>
+          <div className="plan-glance"><span><strong>{money(mandate.capitalCents)}</strong> simulated capital</span><span>{riskLabels[mandate.risk]} · {mandate.horizon}</span></div>
+          <PlanDetails mandate={mandate} />
+          <button className="primary-button" disabled={busy} onClick={() => void run({ type: "approve-mandate", mandateId: mandate.id })}>Approve paper plan</button>
+          <p className="fine-print">This approves simulated decisions only.</p>
+        </section>}
+        {proposal?.status === "proposed" && <section className="inline-plan" aria-labelledby="proposal-title"><span className="small-label">Paper example</span><h2 id="proposal-title">{proposal.allocations.length ? "Try a starting allocation." : "Keep your paper capital where it is."}</h2>
+          {proposal.allocations.map(row => <div className="simple-row" key={row.symbol}><span>Buy {row.symbol} spot</span><strong>{money(row.amountCents)}</strong></div>)}
+          <details className="simple-details"><summary>Why this plan & its checks</summary><p>{proposal.rationale}</p><p>{proposal.opposingCase}</p><p>Example fees: {money(proposal.estimatedFeesCents, true)}. Invented prices dated 26 October 2026; these are not market quotes.</p>
+            <ul className="simple-checks">{checks.map(c => <li key={c.name} className={c.passed ? "" : "blocked"}>{c.passed ? <Check size={14} /> : <X size={14} />}<span>{c.name}{!c.passed && `: ${c.detail}`}</span></li>)}</ul>
+          </details>
+          {checks.some(c => !c.passed) && <p className="blocked">{state.paused ? "Paper decisions are paused. Resume them in your summary." : "This proposal needs attention. Open its checks above."}</p>}
+          <button className="primary-button" disabled={busy || checks.some(c => !c.passed)} onClick={() => void run({ type: "apply-paper", proposalId: proposal.id })}>{proposal.allocations.length ? "Try this paper plan" : "Record no change"}</button>
+          <p className="fine-print">Simulated money. No real order.</p>
+        </section>}
+        {proposal?.status === "applied" && <div className="paper-follow-up"><button className="quiet-button" onClick={() => setSummaryOpen(true)}>View paper portfolio</button><button className="quiet-button" disabled={busy || state.usage.researchRuns >= 20} onClick={() => void run({ type: "review" })}>Review again</button></div>}
+      </>}
+      <div ref={end} className="pip-thread-end" />
+      </div></div>
+      <div className="pip-composer-area"><div className="pip-composer-inner">
+        {awayFromLatest && <button className="pip-jump-latest" aria-label="Jump to latest message" onClick={scrollToLatest}><ArrowDown size={18} strokeWidth={1.5} /></button>}
+        {error && <div className="pip-error" role="alert"><p>{error}</p><button className="icon-button" aria-label="Dismiss error" onClick={() => setError(null)}><X size={17} /></button>{!state && <button className="quiet-button" onClick={() => void load().catch((e: Error) => setError(e.message))}>Try again</button>}</div>}
+        <form className="pip-composer" onSubmit={submit}>
+          <label htmlFor="message" className="sr-only">{step ? questions[step].title : "Message Pip"}</label>
+          <textarea ref={input} id="message" rows={1} autoComplete="off" maxLength={1200} inputMode={step === "capitalCents" || step === "lossReviewPct" ? "decimal" : "text"} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (draft.trim() && !busy) void answer(draft.trim()); } }} placeholder={!state ? "Opening Pip…" : step === "goal" ? "Send a message" : step ? questions[step].placeholder : "Review your paper plan above to continue"} disabled={!state || !step || busy} />
+          <button className="pip-send" aria-label="Send message" disabled={!step || busy || !draft.trim()}>{busy ? <LoaderCircle size={18} className="spin" /> : <ArrowUp size={20} strokeWidth={1.8} />}</button>
+        </form>
+      </div></div>
+    </main>
+
+    <dialog ref={summary} className="pip-summary" aria-labelledby="summary-title" onClose={() => setSummaryOpen(false)}><div className="dialog-heading"><h2 id="summary-title">Your summary</h2><button className="icon-button" aria-label="Close summary" onClick={() => setSummaryOpen(false)}><X size={20} /></button></div>
+      {state && <>
+        {state.profile.goal && <p className="summary-goal">{state.profile.goal}</p>}
+        {state.portfolio ? <><span className="small-label">Paper portfolio</span><div className="summary-equity">{money(equityCents(state.portfolio), true)}</div><div className="simple-row"><span>Cash</span><strong>{money(state.portfolio.cashCents, true)}</strong></div>{state.portfolio.positions.map(p => <div className="simple-row" key={p.symbol}><span>{p.symbol}</span><strong>{money(p.marketValueCents, true)}</strong></div>)}<p className="fine-print">Fixed example prices. Hypothetical fees: {money(state.portfolio.feesCents, true)}.</p></> : <p className="muted">Your paper plan will appear as we talk.</p>}
+        {mandate && <><PlanDetails mandate={mandate} />{mandate.status === "approved" && <button className="secondary-button" disabled={busy} onClick={() => void run({ type: "pause", paused: !state.paused })}>{state.paused ? "Resume paper decisions" : "Pause paper decisions"}</button>}</>}
+        <details className="simple-details"><summary>Recent activity</summary>{state.activity.map(a => <div className="summary-event" key={a.id}><strong>{a.title}</strong><p>{a.detail}</p></div>)}</details>
+        <p className="fine-print">Scripted reviews: {state.usage.researchRuns} / 20 · Model cost: $0.00. No scheduled reviews are active.</p>
+      </>}
+    </dialog>
+    <dialog ref={reset} className="pip-reset" aria-labelledby="reset-title" onClose={() => setResetOpen(false)}><h2 id="reset-title">Start a new conversation?</h2><p>This resets this demo’s conversation and paper plan. Your wallet connection stays available.</p><div className="dialog-actions"><button className="secondary-button" disabled={busy} onClick={() => setResetOpen(false)}>Keep this one</button><button className="primary-button" disabled={busy} onClick={async () => { if (await run({ type: "reset" })) { setResetOpen(false); setDraft(""); } }}>Start over</button></div></dialog>
   </div>;
 }
 
-function MandateView({ mandate, busy, onApprove }: { mandate: Mandate; busy: boolean; onApprove: () => void }) {
-  const approved = mandate.status === "approved";
-  return <div className="workspace-grid"><section className="card mandate-card"><div className="card-top"><div><span className="eyebrow">MANDATE · VERSION {mandate.version}</span><h2>Paper mandate</h2></div><Pill tone={approved ? "green" : "amber"}>{approved ? <CheckCheck size={13} /> : <Clock3 size={13} />}{approved ? "Approved" : "Awaiting approval"}</Pill></div><div className="mandate-body"><div className="goal-quote"><span className="eyebrow">IN YOUR WORDS</span><p>“{mandate.goal}”</p></div><div className="mandate-metrics"><div><span>Allocated paper capital</span><strong>{money(mandate.capitalCents)}</strong></div><div><span>Time horizon</span><strong>{titleCase(mandate.horizon)}</strong></div><div><span>Risk preference</span><strong>{riskLabels[mandate.risk]}</strong></div></div><h3>Limits</h3><dl className="limits-list"><div><dt>Maximum gross exposure</dt><dd>{mandate.maxExposurePct}% of paper equity</dd></div><div><dt>Maximum single position</dt><dd>{mandate.maxPositionPct}% of paper equity</dd></div><div><dt>Permitted examples</dt><dd>BTC & ETH spot · Long only</dd></div><div><dt>Borrowed exposure</dt><dd>None · 1× maximum</dd></div><div><dt>Pause and review trigger</dt><dd>{mandate.lossReviewPct}% decline</dd></div><div><dt>Capital needed within 3 months</dt><dd>{mandate.liquidity === "soon" ? "Yes" : "No"}</dd></div><div><dt>Planned review cadence</dt><dd>Daily + on request</dd></div><div><dt>Authority granted</dt><dd className="green-text">Paper decisions only</dd></div></dl><p className="fine-print">Exposure includes positions and proposed purchases. Review triggers do not cap losses. The scripted prototype does not automatically monitor prices or run daily reviews. Approval does not create a wallet connection or grant trading authority.</p>{!approved ? <div className="approval-box"><ShieldCheck size={21} /><div><strong>Review these limits before approving.</strong><p>These are proposed demo settings. Start a fresh demo if you want different answers before approving.</p></div><button className="primary-button" disabled={busy} onClick={onApprove}>{busy ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}Approve paper mandate</button></div> : <div className="approved-note"><ShieldCheck size={18} /> Approved {new Date(mandate.approvedAt!).toLocaleDateString("en-SG", { timeZone: "Asia/Singapore" })}. This version is read-only.</div>}</div></section><div className="side-stack"><section className="card profile-card"><span className="round-icon"><ShieldCheck size={23} /></span><h2>Mandate controls</h2><p className="muted">Pip proposes a plan. Your approved mandate sets its limits.</p><ul className="check-list"><li><Check size={15} /> Explicit approval first</li><li><Check size={15} /> Independent proposal checks</li><li><Check size={15} /> No live signing capability</li><li><Check size={15} /> Decisions saved to your history</li></ul></section></div></div>;
+function ChatMessage({ role, content }: { role: "assistant" | "user"; content: string }) {
+  return <div className={`pip-message ${role}`}>
+    <div className="pip-bubble"><span className="sr-only">{role === "assistant" ? "Pip" : "You"}: </span>{content.split(/\n{2,}/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
+  </div>;
 }
 
-function PortfolioView({ state, busy, onApply, onReview, onPause }: { state: DemoState; busy: boolean; onApply: () => void; onReview: () => void; onPause: () => void }) {
-  const portfolio = state.portfolio!;
-  const equity = equityCents(portfolio);
-  const invested = portfolio.positions.reduce((sum, p) => sum + p.marketValueCents, 0);
-  const proposal = state.proposal;
-  const canApply = proposal?.status === "proposed" && proposal.checks.every((c) => c.passed) && !state.paused;
-  const cashPercent = equity ? Math.round(portfolio.cashCents / equity * 100) : 100;
-  return <>
-    <div className="portfolio-metrics"><div className="card metric-card"><span>Total paper equity <Wallet size={16} /></span><strong>{money(equity, true)}</strong><small>Starting capital {money(portfolio.startingCapitalCents)}</small></div><div className="card metric-card"><span>Available paper cash <Leaf size={16} /></span><strong>{money(portfolio.cashCents, true)}</strong><small>{cashPercent}% of paper equity</small></div><div className="card metric-card"><span>Paper P&L <ArrowDownRight size={16} /></span><strong>{portfolio.feesCents ? "−" : ""}{money(portfolio.feesCents, true)}</strong><small>Fixed marks · hypothetical fees only</small></div></div>
-    <div className="workspace-grid portfolio-grid"><div className="side-stack"><section className="card holdings-card"><div className="card-top"><h2>Allocation</h2><Pill tone="neutral">Synthetic marks</Pill></div><div className="holdings-summary"><div className="allocation-ring" style={{ background: `conic-gradient(var(--green) 0% ${100 - cashPercent}%, var(--chart-track) ${100 - cashPercent}% 100%)` }} role="img" aria-label={`${100 - cashPercent}% invested, ${cashPercent}% cash`}><div><strong>{100 - cashPercent}%</strong><span>invested</span></div></div><div className="allocation-legend"><div><span><i className="legend-dot green" />Spot positions</span><strong>{money(invested)}</strong></div><div><span><i className="legend-dot cash" />Paper cash</span><strong>{money(portfolio.cashCents)}</strong></div></div></div>{portfolio.positions.length ? <div className="position-list">{portfolio.positions.map((p) => <div key={p.symbol}><span className={`coin ${p.symbol.toLowerCase()}`}>{p.symbol === "BTC" ? "₿" : "Ξ"}</span><div><strong>{p.symbol}</strong><small>{p.quantity.toFixed(6)} units · Spot</small></div><strong>{money(p.marketValueCents, true)}</strong></div>)}</div> : <p className="cash-note"><Leaf size={16} /> All paper capital is currently in cash. A proposal is not a position until you record the decision.</p>}</section>
-      {proposal && <ProposalCard proposal={proposal} state={state} busy={busy} canApply={!!canApply} onApply={onApply} />}
-    </div><div className="side-stack"><section className="card profile-card"><div className="section-label"><span>Controls</span><ShieldCheck size={18} /></div><h2>{state.paused ? "Paper decisions paused" : "Paper controls"}</h2><p className="muted">Pause new paper decisions at any time. Existing paper positions remain in place.</p><button className="secondary-button full-width" disabled={busy} onClick={onPause}>{state.paused ? <Play size={15} /> : <Pause size={15} />}{state.paused ? "Resume paper decisions" : "Pause new paper risk"}</button><button className="text-button" disabled={busy || proposal?.status === "proposed" || state.usage.researchRuns >= 20} onClick={onReview}><RefreshCw size={14} /> Request a scripted review</button><div className="mini-divider" /><dl className="profile-facts"><div><dt>Authority</dt><dd>Paper only</dd></div><div><dt>Review allowance</dt><dd>{state.usage.researchRuns} / 20</dd></div><div><dt>Model cost</dt><dd>$0.00</dd></div></dl></section><div className="connection-note"><LockKeyhole size={19} /><div><strong>Connections</strong><p>MetaMask and Hyperliquid are not connected in this prototype. These balances are simulated.</p></div></div></div></div>
-  </>;
-}
-
-function ProposalCard({ proposal, state, busy, canApply, onApply }: { proposal: Proposal; state: DemoState; busy: boolean; canApply: boolean; onApply: () => void }) {
-  const notional = proposal.allocations.reduce((sum, row) => sum + row.amountCents, 0);
-  return <section className="card proposal-card"><div className="card-top"><div className="proposal-label"><Sparkles size={16} /><span>Sample proposal</span></div><Pill tone={proposal.status === "applied" ? "green" : "amber"}>{proposal.status === "applied" ? "Recorded in paper" : "For your review"}</Pill></div><div className="proposal-body"><h2>{proposal.title}</h2><p>{proposal.rationale}</p>{proposal.allocations.length > 0 && <div className="proposal-allocations">{proposal.allocations.map((row) => <div key={row.symbol}><span className={`coin ${row.symbol.toLowerCase()}`}>{row.symbol === "BTC" ? "₿" : "Ξ"}</span><div><strong>Buy {row.symbol} spot</strong><small>Hypothetical market fill · No leverage</small></div><strong>{money(row.amountCents)}</strong></div>)}</div>}<div className="proposal-facts"><div><span>Gross proposed notional</span><strong>{money(notional)}</strong></div><div><span>Estimated example fees</span><strong>{money(proposal.estimatedFeesCents, true)}</strong></div><div><span>Funding</span><strong>None · Spot examples</strong></div></div><details className="evidence-details"><summary><CircleHelp size={15} /> Evidence, trade-offs & assumptions <ChevronRight size={15} /></summary><div><p><strong>Counterargument:</strong> {proposal.opposingCase}</p><p><strong>Illustrative stress:</strong> A simultaneous 20% price decline would reduce these proposed positions by {money(notional * 0.2)}, before further costs. This is one hypothetical scenario, not a maximum loss.</p><p><strong>Source:</strong> {proposal.source}. Fixture date: 26 October 2026. BTC $100,000; ETH $3,000. These are invented testing marks, not observed prices.</p><p><strong>Execution assumptions:</strong> Immediate full fills at the fixture mark and 0.05% hypothetical fees. No spreads, slippage, depth, funding or live order behaviour is modelled. No live research or return forecast was performed.</p><p><strong>Mandate:</strong> Version {proposal.mandateVersion}. Proposal expires one hour after creation. Recorded checks are an audit snapshot.</p></div></details><div className="risk-checks"><div className="risk-checks-heading"><ShieldCheck size={16} /><strong>Independent mandate checks</strong><span>{proposal.checks.filter((c) => c.passed).length}/{proposal.checks.length}</span></div>{proposal.checks.map((check) => <div className={`risk-check ${!check.passed ? "failed" : ""}`} key={check.name}><span>{check.passed ? <Check size={13} /> : <X size={13} />}{check.name}</span><small>{check.passed ? "Passed" : "Blocked"}</small></div>)}</div>{proposal.status === "proposed" ? <button className="primary-button full-width" disabled={busy || !canApply} onClick={onApply}>{busy ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}{state.paused ? "Paper decisions paused" : proposal.allocations.length ? "Record this paper decision" : "Record no-action decision"}</button> : <div className="approved-note"><CheckCheck size={17} /> Saved to your paper portfolio and activity.</div>}<p className="button-caption">A paper record only. No real order or wallet signature.</p></div></section>;
+function PlanDetails({ mandate }: { mandate: Mandate }) {
+  return <details className="simple-details"><summary>Plan limits</summary><dl className="plan-limits"><div><dt>Capital</dt><dd>{money(mandate.capitalCents)} simulated</dd></div><div><dt>Time horizon</dt><dd>{mandate.horizon}</dd></div><div><dt>Risk</dt><dd>{riskLabels[mandate.risk]}</dd></div><div><dt>Total exposure</dt><dd>Up to {mandate.maxExposurePct}%</dd></div><div><dt>Single position</dt><dd>Up to {mandate.maxPositionPct}%</dd></div><div><dt>Products</dt><dd>BTC & ETH spot · No borrowing</dd></div><div><dt>Review trigger</dt><dd>{mandate.lossReviewPct}% decline</dd></div><div><dt>Need capital soon</dt><dd>{mandate.liquidity === "soon" ? "Yes" : "No"}</dd></div><div><dt>Authority</dt><dd>Paper decisions only</dd></div></dl><p className="fine-print">A review trigger does not cap losses. This demo does not monitor markets or run scheduled reviews.</p></details>;
 }
