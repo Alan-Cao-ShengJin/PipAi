@@ -1,0 +1,2 @@
+# Preserve imported source bytes so their SHA-256 inventory survives checkout.
+"Claude Skills/**" -text

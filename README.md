@@ -4,6 +4,8 @@ Local prototype for a personal investing workspace. The paper workspace uses a s
 
 A [wallet and Hyperliquid mainnet connection flow](docs/HYPERLIQUID_CONNECTIVITY.md) is available at `/connect`. Connect MetaMask once; Pip automatically reads that owner's mainnet account. The green indicator means fresh **read-only** account access, with no trading key approval, chain switch, trades or transfers. The separate execution tooling remains testnet-only and disarmed by default; the paper demo and research worker remain separate. Follow the connection guide for local backend setup.
 
+Current product direction targets retail-broker access through Tiger, Moomoo and Robinhood; the first integration is unselected and unverified. Customer experience and backend development can progress together. Portfolio previews before connection are provisional; account-aware allocations require verified holdings and the user's intended managed amount. See [the confirmed refinements](PROJECT_HANDOFF.md#confirmed-refinements--27-october-2026).
+
 ## Run on Windows
 
 Use Node.js 24.13 or later. From this directory:
@@ -38,6 +40,7 @@ The agent demo is also offline. It demonstrates proactive multi-step research, s
 - [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md): Agreed scope, build stages and open decisions.
 - [docs/HARNESS_DESIGN.md](docs/HARNESS_DESIGN.md): Open-source study, harness design and next implementation gates.
 - [docs/PROACTIVE_AGENT.md](docs/PROACTIVE_AGENT.md): Persistent research runtime, daily continuation, provider setup, checks and remaining gaps.
+- [skills/README.md](skills/README.md): Cleaned research-analyst skill cycle, conditional company/cross-asset branches, handoff checks and evaluation cases. Authored bundle; not automatically loaded into the worker.
 - [docs/research/HYPERLIQUID_PAIR_SCREEN_2026-10-26.md](docs/research/HYPERLIQUID_PAIR_SCREEN_2026-10-26.md): Public-data cross-asset pair diagnostics, reproducible read-only script and evidence gaps. Separate from the app; no validated trading strategy or positions.
 
 Native SwiftUI development and iOS Simulator verification will happen on the founder's Mac. No native app or production integration has been implemented yet.

@@ -1,0 +1,19 @@
+{
+  "id": "synthetic-driver-check",
+  "kind": "company-model",
+  "version": 1,
+  "status": "complete",
+  "notApplicableReason": null,
+  "mandateId": "synthetic-paper-mandate",
+  "mandateVersion": 1,
+  "scopeIds": ["synthetic-issuer"],
+  "asOf": "2026-10-27T09:00:00Z",
+  "producedAt": "2026-10-27T09:05:00Z",
+  "summary": "Synthetic arithmetic fixture only: 100 units at price 2 gives revenue 200. This is not an investment case.",
+  "sources": [{"id":"fixture", "location":"fixture://synthetic-driver-data", "locator":"example inputs", "publishedAt":"2026-10-27T08:00:00Z", "availableAt":"2026-10-27T08:00:00Z", "retrievedAt":"2026-10-27T08:30:00Z", "accessStatus":"available", "synthetic":true}],
+  "claims": [{"id":"revenue", "text":"Synthetic revenue is 200 units.", "material":true, "basis":"derived", "sourceIds":["fixture"], "calculation":{"method":"100 units multiplied by price 2", "inputIds":["fixture:units", "fixture:price"]}, "rationale":null}],
+  "dependencies": [],
+  "checks": [{"name":"Arithmetic fixture", "result":"pass", "blocking":true, "detail":"100 multiplied by 2 equals 200; no external facts were checked."}],
+  "criticalUnknowns": [],
+  "nextActions": [{"task":"Test the remaining synthetic cost assumptions.", "kind":"calculate", "completionCondition":"Reconcile the synthetic cost and cash-flow bridge.", "dueAt":null, "trigger":null, "activationStatus":null, "activationId":null}]
+}

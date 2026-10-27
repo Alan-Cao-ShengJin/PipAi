@@ -1,0 +1,57 @@
+{
+  "version": "1.1.0",
+  "entrySkill": "pip-research-cycle",
+  "runtimeIntegrated": false,
+  "skills": [
+    {"id":"pip-research-cycle","path":"pip-research-cycle/SKILL.md","sourceSkills":["company-model-update"]},
+    {"id":"pip-evidence-intake","path":"pip-evidence-intake/SKILL.md","sourceSkills":[]},
+    {"id":"pip-company-model","path":"pip-company-model/SKILL.md","sourceSkills":["quarterly-3s","volume-data-tab","earnings-call-guidance","revenue-projection-build"]},
+    {"id":"pip-financial-quality","path":"pip-financial-quality/SKILL.md","sourceSkills":["penetrate-financial-report-v2"]},
+    {"id":"pip-valuation-thesis","path":"pip-valuation-thesis/SKILL.md","sourceSkills":["penetrate-narrative-stock-analysis"]},
+    {"id":"pip-investment-conclusion","path":"pip-investment-conclusion/SKILL.md","sourceSkills":["investment-thesis-tab"]},
+    {"id":"pip-cross-asset-strategy","path":"pip-cross-asset-strategy/SKILL.md","sourceSkills":[]},
+    {"id":"pip-research-challenge","path":"pip-research-challenge/SKILL.md","sourceSkills":[]},
+    {"id":"pip-portfolio-decision","path":"pip-portfolio-decision/SKILL.md","sourceSkills":[]},
+    {"id":"pip-management-questions","path":"pip-management-questions/SKILL.md","sourceSkills":["management-questions"]},
+    {"id":"pip-research-brief","path":"pip-research-brief/SKILL.md","sourceSkills":["boss-update-note"]},
+    {"id":"pip-monitor-review","path":"pip-monitor-review/SKILL.md","sourceSkills":[]}
+  ],
+  "stages": {
+    "scope":{"skill":"pip-research-cycle","output":"research-brief","requiredBefore":[]},
+    "evidence":{"skill":"pip-evidence-intake","output":"evidence-pack","requiredBefore":["scope"]},
+    "hypotheses":{"skill":"pip-cross-asset-strategy","output":"hypothesis","requiredBefore":["evidence"]},
+    "company-actuals":{"skill":"pip-company-model","output":"company-model","requiredBefore":["evidence"]},
+    "operating-data":{"skill":"pip-company-model","output":"company-model","requiredBefore":["company-actuals"]},
+    "management-guidance":{"skill":"pip-company-model","output":"evidence-pack","requiredBefore":["evidence"]},
+    "company-forecast":{"skill":"pip-company-model","output":"company-model","requiredBefore":["company-actuals","operating-data","management-guidance"]},
+    "model-audit":{"skill":"pip-financial-quality","output":"financial-quality","requiredBefore":["company-forecast"]},
+    "valuation":{"skill":"pip-valuation-thesis","output":"valuation-thesis","requiredBefore":["model-audit"]},
+    "thesis-validation":{"skill":"pip-financial-quality","output":"financial-quality","requiredBefore":["valuation"]},
+    "strategy-test":{"skill":"pip-cross-asset-strategy","output":"strategy-test","requiredBefore":["hypotheses"]},
+    "challenge":{"skill":"pip-research-challenge","output":"challenge","requiredBefore":["thesis-validation"]},
+    "conclusion":{"skill":"pip-investment-conclusion","output":"investment-conclusion","requiredBefore":["valuation","thesis-validation","challenge"]},
+    "implementation-challenge":{"skill":"pip-research-challenge","output":"challenge","requiredBefore":["strategy-test"]},
+    "portfolio":{"skill":"pip-portfolio-decision","output":"portfolio-decision","requiredBefore":["evidence","implementation-challenge"]},
+    "questions":{"skill":"pip-management-questions","output":"management-questions","requiredBefore":["evidence"]},
+    "brief":{"skill":"pip-research-brief","output":"brief","requiredBefore":["evidence"]},
+    "monitor-review":{"skill":"pip-monitor-review","output":"monitor-review","requiredBefore":["evidence"]}
+  },
+  "flows": {
+    "new-company-research":["scope","evidence","company-actuals","operating-data","management-guidance","company-forecast","model-audit","valuation","thesis-validation","challenge","conclusion","brief"],
+    "company-update":["scope","evidence","company-actuals","operating-data","management-guidance","company-forecast","model-audit","valuation","thesis-validation","challenge","conclusion","brief"],
+    "company-to-portfolio":["scope","evidence","company-actuals","operating-data","management-guidance","company-forecast","model-audit","valuation","thesis-validation","challenge","conclusion","hypotheses","strategy-test","implementation-challenge","portfolio","brief","monitor-review"],
+    "new-non-company-research":["scope","evidence","hypotheses","strategy-test","implementation-challenge","portfolio","brief","monitor-review"],
+    "recurring-review":["scope","evidence","monitor-review","brief"]
+  },
+  "routingNotes": [
+    "Flows are dependency-aware working guides, not permissions or an active scheduler. Focused requests use the relevant subset and reuse current upstream artifacts.",
+    "Company research is model-first: actuals, operating data and guidance feed forecasts; an audited model precedes valuation; validation and challenge precede the investment conclusion.",
+    "Company actuals, operating data and forecasts use distinct artifact IDs. Model audit and post-valuation thesis validation also use distinct IDs despite sharing a specialist/artifact kind.",
+    "Guidance intake can finish as unavailable or not applicable with a reason; do not fabricate guidance or make every company wait for an IR response.",
+    "The core company flow ends with a researched conclusion/brief. Strategy testing, portfolio construction and monitoring form a separate downstream extension.",
+    "Indices, commodities, FX and crypto use the non-company branch; look-through company work is optional when relevant.",
+    "Missing tests block an asserted tradable edge, not a legitimate rejection, partial brief or further research.",
+    "Questions are an optional gap-resolution branch throughout the cycle, not compulsory outreach or a mandatory stop.",
+    "Recurring reviews reopen any affected dependencies rather than rebuilding every artifact or allowing only one revision loop."
+  ]
+}

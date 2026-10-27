@@ -1,14 +1,14 @@
 # AiFi Project — Product and Engineering Handoff
 
-Updated: 26 October 2026  
-Status: Local Stage 1 web prototype, harness foundation, public-market pair study and persistent proactive research runtime implemented. Optional model adapter added; no real model verification, live account connections or trading.  
+Updated: 27 October 2026
+Status: Local web prototype, harness, persistent research runtime, analyst skills and separate read-only Hyperliquid connection implemented. Optional model adapter added; no real model verification, retail-broker integration or mainnet trading.
 
 Connectivity update: `/connect` now connects MetaMask to **Hyperliquid mainnet for read-only account checks**, with automatic owner-account reads and a fresh green Mainnet / Read only indicator. No separate account, network switch or API trading approval is required. Details cover core perps and spot, explicitly excluding builder-deployed markets. The separate local execution package remains testnet-only and disarmed; mainnet order submission is absent. See [Hyperliquid connectivity](docs/HYPERLIQUID_CONNECTIVITY.md). The scripted workspace and proactive research runtime remain research/paper-only.
 Project name: Not selected. “AiFi” is a working category label.
 
 ## 1. Product in one paragraph
 
-Build a retail-facing AI investing and trading workspace that reduces the time users spend researching and the attention required to monitor their portfolios. Users retain their main wallet keys, connect their own accounts, set a mandate, and interact with a persistent personal investment agent through mobile and web. The platform supplies portfolio-aware research, background monitoring, meaningful updates, independent risk checks and eventual execution infrastructure. Start with Hyperliquid as the execution venue, covering its supported asset classes rather than equities alone. Support user-approved proposals initially, then opt-in autonomous trading under a revocable, time-limited authorisation once security and execution gates pass. Use model APIs, with platform-owned memory and explicit compute budgets.
+Build a retail-facing personal AI investment manager that reduces the time users spend researching and the attention required to monitor their portfolios. Users connect their own accounts, set a mandate, and interact with a persistent personal investment agent through mobile and web. The platform supplies portfolio-aware research, background monitoring, meaningful updates, independent risk checks and eventual delegated execution. Target retail-broker access through Tiger, Moomoo and Robinhood; the first adapter and supported access remain to be selected and verified. Support paper proposals initially, then opt-in autonomous management under revocable, bounded authority once execution gates pass. Use model APIs, with platform-owned memory and explicit compute budgets.
 
 ## 2. Decisions and boundaries
 
@@ -17,9 +17,9 @@ Build a retail-facing AI investing and trading workspace that reduces the time u
 | Customer | Founder first, then a few invited testers; broader retail segment remains to be validated |
 | Primary pain points | Research takes too much time; monitoring a portfolio requires constant attention |
 | Primary user value | Useful research with less manual work, and timely portfolio updates that reduce repeated checking |
-| Initial venue | Hyperliquid, including applicable builder-deployed markets |
+| Broker targets | Tiger, Moomoo and Robinhood; first adapter, access mechanism and supported account model remain unselected and unverified |
 | Assets | Broad market discovery across available asset classes; do not hardcode the product around equities |
-| Wallet | MetaMask first, connecting the user's existing wallet; do not build a proprietary wallet or request seed phrases/main private keys |
+| Account connection | Retail-broker accounts are the current direction. MetaMask/Hyperliquid were earlier targets, not required onboarding dependencies; never request seed phrases/main private keys |
 | Custody intent | Platform does not receive customer deposits into its own pooled account; actual key/control architecture requires technical and legal assessment |
 | Agent authority | User-defined mandate; eventual opt-in delegated trading without external withdrawal authority |
 | Interface | Native iOS app using SwiftUI/Xcode plus web app, with shared conversations, memory and portfolio state |
@@ -39,9 +39,16 @@ Build a retail-facing AI investing and trading workspace that reduces the time u
 
 These are product directions, not evidence that a secure live service, commercial integration or licence is already available to this project.
 
+### Confirmed refinements — 27 October 2026
+
+- **Execution direction:** Target Tiger, Moomoo and Robinhood through supported broker access. This supersedes the earlier Hyperliquid/MetaMask-first plan. Preserve the existing Hyperliquid public-data study and tools as prototype research work, not a commitment to the first execution venue.
+- **Build order:** Customer-journey design and backend work can progress together. Defining onboarding, the starting plan, allocation, activation, reporting and controls is not a prerequisite for useful harness, research or integration work.
+- **Account-aware allocation:** Before account connection, a plan is an explicitly provisional preview. An account-aware allocation requires verified holdings and the user's intended managed amount, followed by relevant funding, exposure and mandate checks. Connected balances are observations, not permission to manage all assets.
+- **Continuity:** Reuse the implemented prototype, persistent harness and model-first research cycle. The imported [product discussion](handoff.md) adds direction rather than resetting the project.
+
 ### MVP refinement — 26 October 2026
 
-Confirmed in the initial setup discussion:
+Confirmed in the initial setup discussion; the broker and wallet priorities below are historical and superseded by the 27 October refinements above:
 
 - **First users:** The founder, followed by a few invited testers.
 - **Primary problems:** Research takes too much time, and monitoring a portfolio requires constant attention. Judge the MVP by research time saved and reduced monitoring burden; onboarding, chat and the harness enable these outcomes.
@@ -58,7 +65,7 @@ Confirmed in the initial setup discussion:
 - **iOS access:** The founder has an iPhone, a Mac and Apple Developer membership, and has built iOS apps on a Mac before. Use Xcode and the iOS Simulator on the Mac for native development and testing. The current Windows workspace cannot run Xcode or the iOS Simulator; native build and simulator verification must happen on a Mac.
 - **Research cadence:** One daily AI review plus research on request. Keep portfolio/account refreshes separate from model invocations and meter scheduled and manual research against the same budget.
 
-Remaining setup questions include the initial wallet-read chain allowlist, validated market/product coverage, research sources and commercial rights, model/provider selection and hosting. Strategies and holding periods should be derived per user within supported capabilities, rather than fixed globally. Keep engineering recommendations distinct from founder-confirmed decisions.
+Remaining setup questions include the first retail-broker adapter and supported account access, validated market/product coverage, research sources and commercial rights, model/provider selection and hosting. Strategies and holding periods should be derived per user within supported capabilities, rather than fixed globally. Keep engineering recommendations distinct from founder-confirmed decisions.
 
 ### Recommended one-month deliverable
 
@@ -66,14 +73,14 @@ The following makes the founder's target concrete; it is a scoped engineering re
 
 1. Run an iOS app and a web app against one backend, preserving each user's conversations, profile, mandate and proposal history across both clients.
 2. Complete a conversational risk/needs interview and approve a structured, versioned mandate. Support users who do not yet know their target return or preferred strategy.
-3. Connect an existing MetaMask wallet, verify ownership for account linking, and display read-only Hyperliquid account state with source/freshness timestamps. Empty accounts must work without requiring a deposit or open position.
+3. Implement one supported broker account connection from the Tiger, Moomoo and Robinhood targets, after validating access. Display verified read-only holdings and available funds with source/freshness timestamps, and record the user's intended managed amount separately. Empty accounts must work without requiring a deposit or position. Keep any pre-connection portfolio preview provisional.
 4. Maintain a separate, clearly labelled paper portfolio with user-selected simulated starting capital. Never merge simulated balances, fills or P&L into actual account records.
 5. Generate sourced strategy/trade proposals, explain portfolio impact and uncertainty, and evaluate them using deterministic mandate checks.
 6. Track approved hypothetical decisions with explicit execution, fee and funding assumptions. Run one daily review and research on request within spending limits.
 7. Show decision/activity history, source timestamps, research usage and review controls. No live signing, order submission or fund movement is included.
 8. Exercise a minimal background monitoring loop with explicitly selected watch conditions, persistent/deduplicated alerts, monitoring-health status and an agreed notification-delivery channel. Test meaningful changes and data-feed interruptions. This is a target capability, not present in the current scripted prototype; alert conditions, delivery channel and timing targets still need selection.
 
-Suggested sequence: week 1 simulated iOS/web flow and domain contracts; week 2 durable identity/memory and read-only integrations; week 3 sourced research and independent checks; week 4 daily reviews, paper accounting and failure-mode verification. Validate the wallet connection on both platforms early. Narrow research coverage before weakening isolation, evidence or accounting requirements if time becomes constrained.
+Suggested milestones: simulated client flows and domain contracts; durable identity/memory and one supported read-only broker integration; sourced research and independent checks; daily reviews, paper accounting and failure-mode verification. Progress on backend and customer experience can overlap; completing the journey design is not a prerequisite. Validate the selected broker connection on both platforms early. Narrow research coverage before weakening isolation, evidence or accounting requirements if time becomes constrained.
 
 ## 3. Problem and positioning
 
@@ -153,6 +160,12 @@ Platform software provides the supported market catalogue, data-quality requirem
 Cross-asset research must cover validated builder-deployed markets as well as crypto. Distinguish diversification from factor hedging, relative value and carry; require an economic thesis and tested sizing policy before assigning weights. A loss budget or historical correlation alone does not justify an allocation. The [26 October public-data pair screen](docs/research/HYPERLIQUID_PAIR_SCREEN_2026-10-26.md) compares NVDA/AMD, XYZ100/SP500 and GOLD/SILVER using captured candles, funding and order books. It is a standalone diagnostic, not a validated trading strategy or an integration into the web app/harness.
 
 The agent must own and advance the next useful task. A shortlist or no-trade finding should lead to further investigation, a timed follow-up, an essential user question or an actionable mandate revision rather than abandonment. Continue within approved risk/tool limits and bounded compute; do not chase an infeasible return target by silently widening authority. The [local proactive runtime](docs/PROACTIVE_AGENT.md) now demonstrates multi-step continuation, persisted tasks/checkpoints, model-request accounting, exclusive workers and a daily wake-up. Its opt-in OpenRouter/public-market CLI is separate from the web app, uses a synthetic allocation and needs local credentials/model selection. No paid model call was made during implementation. Deterministic real-time monitoring, remote notifications and independent proposal/approval integration remain open.
+
+### Research analyst skill cycle — 27 October 2026
+
+The founder supplied ten raw Claude skills and asked for the best logical sequence, explicitly establishing the model before valuation/conclusions. The [cleaned project bundle](skills/README.md) now centres company research on historical 3S -> operating data -> guidance -> forward model -> model/consensus audit -> valuation/expectations -> thesis validation/challenge -> investment conclusion -> brief. Management questions branch from material uncertainties. Model audit and post-valuation thesis validation are distinct passes, and valuation and the final conclusion are separate artifacts. Strategy testing, portfolio construction and monitoring are downstream extensions; non-company instruments use their relevant economic methods. The [audit](docs/RESEARCH_SKILLS_AUDIT.md) records source mapping, corrected methods, preserved workbook conventions and missing capabilities. Original files under `Claude Skills/` and live Claude installations are not overwritten.
+
+Skills are authored guidance with versioned handoffs and authoring/numerical checks, not automatic backend enforcement or installed capabilities. The existing worker does not load this bundle or persist its full artifact contract yet. Selective skill loading, artifact invalidation, richer retrieval/backtesting tools and actual watch activation remain integration work. Keep mandate, identity, tool policy, costs and execution controls in trusted application code.
 
 ### Onboarding and initial portfolio
 

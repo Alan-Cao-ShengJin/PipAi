@@ -1,0 +1,10 @@
+{
+  "basis": "FCFE-equity",
+  "currency": "USD",
+  "unit": "synthetic units",
+  "marketEquityValue": 1000,
+  "forecastFcfe": [100, 100, 100],
+  "costOfEquityPct": 10,
+  "terminalGrowthPct": 0,
+  "transitionYears": 7
+}

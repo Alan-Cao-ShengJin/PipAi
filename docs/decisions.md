@@ -70,3 +70,21 @@ The founder requires a proactive agent that keeps advancing the user's mandate, 
 Use explicit durable workflow state, independently enforced authority, shared usage budgets and capped model/tool steps. Preserve the agreed one-daily-review-plus-on-request cadence; idle observations must not become unbounded paid reasoning. Persist before dispatch, replay settled results, fence concurrent workers and hold uncertain outcomes for reconciliation. Ambitious return goals do not expand permissions or justify arbitrary risk.
 
 The [local proactive runtime](PROACTIVE_AGENT.md) implements that lifecycle with a deterministic offline demonstration, an opt-in OpenRouter SDK adapter and public-market research tools. It has no production identity, live account context, validated trading strategy, real-time watch service, remote notifications or execution integration. A configured provider key/model and real-provider verification are required before claiming an LLM is running in the worker.
+
+## 0008 — Curate research methods into a conditional analyst cycle
+
+Date: 27 October 2026. Status: project skill bundle authored; runtime selection and artifact-store integration remain open.
+
+Preserve the imported Claude collection as source material and maintain a canonical [research bundle](../skills/README.md). The founder asks us to choose the best sequence, with the model established before valuation and conclusions. Use historical actuals -> operating data -> guidance -> forward model -> model/consensus audit -> valuation/expectations -> targeted thesis validation/challenge -> investment conclusion -> brief. Keep valuation provisional until validation, separate the conclusion artifact, and draft management questions where they can change assumptions. Broader strategy/portfolio/monitoring work extends the analyst conclusion rather than replacing this model-first core. Continue authorised analysis with concrete next tasks; approval requirements come from actual actions and the user mandate, not a legacy default to pause after every step.
+
+Use versioned source-aware handoffs and invalidate affected downstream work when facts, assumptions or mandates change. Retain provenance, distinguish observation/guidance/assumption/derivation, avoid forced accounting/KPI reconciliations, and keep company formatting preferences optional. The skills do not create tools, imply source access, approve positions or activate watches. Machine shape/numeric checks supplement model judgment; they do not certify research quality or investment performance.
+
+## 0009 — Target retail brokers and develop the experience alongside the backend
+
+Date: 27 October 2026. Status: founder-confirmed direction; broker access and the first adapter remain unverified and unselected.
+
+Target Tiger, Moomoo and Robinhood through supported retail-broker access. This supersedes the earlier Hyperliquid/MetaMask-first direction without discarding the existing public-data study, prototype or provider-independent harness. Target names do not establish API/MCP availability or supported account permissions.
+
+Refine onboarding, the starting plan, managed allocation, activation, reporting and controls alongside useful backend work. A completed customer journey is not a mandatory prerequisite for research, harness or integration components.
+
+A plan shown before connection is an explicitly provisional preview. An account-aware allocation requires verified holdings and the user's intended managed amount. Retrieve observable account facts through authorised connections, preserve source/freshness information, and do not treat the entire account balance as delegated capital. Confirm the resulting plan and mandate before activating the supported management mode.

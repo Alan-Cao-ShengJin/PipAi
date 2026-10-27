@@ -1,0 +1,306 @@
+{
+  "capturedOn": "2026-10-27",
+  "purpose": "Preserve the 60 original imported files; not an endorsement of their scripts or data.",
+  "files": [
+    {
+      "path": "Claude Skills/boss-update-note/references/longxin_3q26_final.md",
+      "sha256": "7aeb221206ce2317d8ef0133513c74fc78e3e40ee3dacaede36fdf86c19bb022",
+      "bytes": 2632
+    },
+    {
+      "path": "Claude Skills/boss-update-note/references/moto_monthly_data_example.md",
+      "sha256": "cfba2e701607edb7984818180017517de24c4f6cc281e81a1a3ef33a20437434",
+      "bytes": 1250
+    },
+    {
+      "path": "Claude Skills/boss-update-note/SKILL.md",
+      "sha256": "556a3d52cd392ec140063940d5d454b800c13c861c19cfa6b97a123bdf3b6f90",
+      "bytes": 4869
+    },
+    {
+      "path": "Claude Skills/claude skill/_shared/preflight.py",
+      "sha256": "5c63006f29e64fa4e1f5a4d370084e017387899f81a19c6fa7e61854178b0edc",
+      "bytes": 7962
+    },
+    {
+      "path": "Claude Skills/claude skill/_shared/README.md",
+      "sha256": "a43bbe38de11ab3183f1950ddfafc71b40118216e09ad3eafbf96c463408e730",
+      "bytes": 4607
+    },
+    {
+      "path": "Claude Skills/claude skill/_shared/report_charts.py",
+      "sha256": "be3b4c61a3b22bb13f2f79d81c2aee4c7e199c1dea8af4fbdd83f00f0989364e",
+      "bytes": 7115
+    },
+    {
+      "path": "Claude Skills/claude skill/_shared/report_check.py",
+      "sha256": "32ac5f6d794c8047f6e79201ad330c6e5ded2acb5c8001e96209c5850e230bba",
+      "bytes": 11864
+    },
+    {
+      "path": "Claude Skills/claude skill/_shared/report_emit.py",
+      "sha256": "b0e0fbe0305bbc6cf2c2b8cbaa4126b1f6c84a561397ef1af0b739e8c68c7bff",
+      "bytes": 13359
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/data/statement-template.xlsx",
+      "sha256": "b5f1e86aad0423b10681238c840425e5da1284ab071f2bc1611460bdcba25ec3",
+      "bytes": 49995
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/references/financial-methodology.md",
+      "sha256": "3c204b0bbe82279d855cd439e6cd9be21c3e8f7b766ace4e924a21d338dd6e2e",
+      "bytes": 11939
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/references/fraud-detection.md",
+      "sha256": "c19589462abc732e6d7d16c39f7bd2534a210e5f3a225e2b3abcdb0eaf28dd2e",
+      "bytes": 6912
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/references/narrative-finance-integration.md",
+      "sha256": "461607ab8d74bea87ec37778e4759343600795650a00d3c764c99d5872a917ee",
+      "bytes": 7317
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/references/scoring-model-guide.md",
+      "sha256": "ee64d84ce72de4bbd1b1e8e6bdbce69d6bac6d83125d2a19af7acd5ad38a71af",
+      "bytes": 11429
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/references/statement-notes.md",
+      "sha256": "0e11bdc906e046126aebb808cc2a894015359acc258eafa59dd7e8cde2a129d9",
+      "bytes": 14755
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/scripts/financial_scoring.py",
+      "sha256": "c8ca4238bf274bfc82a3178aeec58cdfe0f0469b9d91dda984d05e032d510eb0",
+      "bytes": 30601
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/scripts/financial_scoring_builtin.py",
+      "sha256": "e42396997526ea93970622cdedc70751e3164d4d4084f9154e96ee4288896f6a",
+      "bytes": 2403
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/scripts/generate_report.py",
+      "sha256": "0cef859aa81c8d7db4dcaf3d7e592358c9667c159cf91613d1adae8cac578a27",
+      "bytes": 67354
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-financial-report-v2/SKILL.md",
+      "sha256": "f3509c4c9dbd7ccad7a9f67dc89a3785d365b89fa696fc2ccd2669f1da191129",
+      "bytes": 49898
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/case-studies.md",
+      "sha256": "660bdbaee50667af27ad0856816052464574b40c8172059859a77f0a48c1be3f",
+      "bytes": 14480
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/examples/example_report_300308_hardcoded.py",
+      "sha256": "ff8c3508cab28df2cabdf3f4a26d73b2154b756ef6ee7363855ee713fa96e502",
+      "bytes": 103994
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/key-insights.md",
+      "sha256": "556b99939f8bb64205136c633b69035235192f5367e4156dd62d36dc41cd0f83",
+      "bytes": 8752
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/methodology.md",
+      "sha256": "eda98aabb1740e243198eace21bac01d4fdf0e3629adccf69b0305fc074359f6",
+      "bytes": 10345
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/pricing-mechanism.md",
+      "sha256": "699aa1fb00ee0d44956cc0da3f5baa79d20a4ee12d33cbfba971f5fb46be58bd",
+      "bytes": 6484
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/references/valuation-framework.md",
+      "sha256": "a68168ade90ceefc60e3582082249d166bf63ee9a8eb77d88f9af64dc7aea730",
+      "bytes": 9634
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/scripts/build_report.py",
+      "sha256": "5272ccf350136876967e4d20d4e720c73dd6fdbfbeaf2ffa3ca4d71bfee10e17",
+      "bytes": 4460
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/scripts/content_template.py",
+      "sha256": "378482efe760e7b621aefcc30f8a46c787fd195eb09cccfcaf776f9a32559003",
+      "bytes": 7204
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/scripts/dcf_implied.py",
+      "sha256": "65608652d2e2afcc06d9edfe8c500dc84faf5468277af5d130a3679b83dd9c5e",
+      "bytes": 19919
+    },
+    {
+      "path": "Claude Skills/claude skill/penetrate-narrative-stock-analysis/SKILL.md",
+      "sha256": "27bd1c9308a30f6228ba49dfac639e82958ae49e40e3102c501589659c2499f7",
+      "bytes": 52900
+    },
+    {
+      "path": "Claude Skills/company-model-update/SKILL.md",
+      "sha256": "230d499759996ac38ff5832be371c152e466ffcc5fbb18857460b30e3ddeef6c",
+      "bytes": 7044
+    },
+    {
+      "path": "Claude Skills/earnings-call-guidance/references/example.md",
+      "sha256": "5aedc62cb92ceac62fec3477561533cbd436c8d504b337777a4b52fc040d77ed",
+      "bytes": 4030
+    },
+    {
+      "path": "Claude Skills/earnings-call-guidance/references/longxin_write_guidance_com.py",
+      "sha256": "a078d416afeca9fcfd655f1fec7bd12d7b6332ff2b74fa4a7f7c2c8709d32560",
+      "bytes": 5438
+    },
+    {
+      "path": "Claude Skills/earnings-call-guidance/scripts/dump_workbook.py",
+      "sha256": "30b82d2a8f32aaa8e1d55556e7bff62e2023dadb791c13d43926a19a80b39766",
+      "bytes": 1015
+    },
+    {
+      "path": "Claude Skills/earnings-call-guidance/scripts/write_guidance.py",
+      "sha256": "6d594db00284b3fe5256d8e2203d1ec929bb4995b25580abb40de2a0cbc023a8",
+      "bytes": 4765
+    },
+    {
+      "path": "Claude Skills/earnings-call-guidance/SKILL.md",
+      "sha256": "81154d7b40f7dad9381b7cb99ae675a712f282993022fae28fc4649a7da4b4b5",
+      "bytes": 11845
+    },
+    {
+      "path": "Claude Skills/investment-thesis-tab/references/longxin_pe_band_chart.py",
+      "sha256": "837ec73940aa43ef93feec1e2804ac89d373d15a2d4543d01f78a7d911470941",
+      "bytes": 10051
+    },
+    {
+      "path": "Claude Skills/investment-thesis-tab/references/longxin_pe_band_data.py",
+      "sha256": "149d9e8b7c182e1c05642a752a6f27a94337ce26e699eb764db86792ec104ee8",
+      "bytes": 3665
+    },
+    {
+      "path": "Claude Skills/investment-thesis-tab/references/longxin_write_thesis_com.py",
+      "sha256": "02a6bfa11084a60b77741c0e1382080588f8cc633d969d411725c2d2d11d3bb6",
+      "bytes": 7111
+    },
+    {
+      "path": "Claude Skills/investment-thesis-tab/SKILL.md",
+      "sha256": "333f13797a2bffd41068562173c571aaf5a022a1c95db6ea712d886b15d386dc",
+      "bytes": 4960
+    },
+    {
+      "path": "Claude Skills/management-questions/references/longxin_write_questions_com.py",
+      "sha256": "141cf989a22bf2a214ce248eb5313d4fe0d78f8bffe7936e9cea46c5e9476ff4",
+      "bytes": 4864
+    },
+    {
+      "path": "Claude Skills/management-questions/SKILL.md",
+      "sha256": "f10d0e1c12297b01dba5466e362632988a312f26ee0b3bc14522bb754efc51ba",
+      "bytes": 4797
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/references/longxin_q3s_values.py",
+      "sha256": "6d4bf2e78935240cb6d29ec908612a6a3a75f570e2294fc5338f453662e9cf0a",
+      "bytes": 3693
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/references/longxin_q3s_write_com.py",
+      "sha256": "88ad4988b04377a22fbda1df46385a90cd525af63ac2b7f20c3ba93c6b01ef53",
+      "bytes": 3072
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/scripts/dump_workbook.py",
+      "sha256": "30b82d2a8f32aaa8e1d55556e7bff62e2023dadb791c13d43926a19a80b39766",
+      "bytes": 1015
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/scripts/extract_is.py",
+      "sha256": "4e068ae26c259cd65c882f91a3878c6ae537b33c62cd38df4ad1469d6f58165f",
+      "bytes": 4680
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/scripts/fill_quarters.py",
+      "sha256": "b8fefcb260977b8568e0f5f0e96ad688bee455322c04e50cc54a69d635d79218",
+      "bytes": 11549
+    },
+    {
+      "path": "Claude Skills/quarterly-3s/SKILL.md",
+      "sha256": "9345a831d5ba36e104c9ef4623d16a8253fe42adf80b4842aa38fbe2d1b4c97f",
+      "bytes": 9917
+    },
+    {
+      "path": "Claude Skills/README.md",
+      "sha256": "e2ee6c4d58b98f1592ce9ebcdb8f74d33a244eefd43960ceaa9dbb5ab6911800",
+      "bytes": 3650
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/house-style.md",
+      "sha256": "bcdfee0877587450e6e8ff05d9d5457cb2307322f69de0cef51ff01ff634039f",
+      "bytes": 5030
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/longxin_audit_esop_q4cost.py",
+      "sha256": "96756ac5ae6a2743f585e205ddb5d4ef329efc3dd1f9336b527e4d246977222d",
+      "bytes": 7819
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/longxin_build_rp.py",
+      "sha256": "75e5bac1aa717d8182b638a7debbc95d89ed3f73bf58e4d85385f3e6d9935926",
+      "bytes": 33960
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/longxin_segment_resplit_kpi_cap.py",
+      "sha256": "39a3f225796fdb74b0a7532e6689f96880c0e54123bcc66838102e37f982d7a0",
+      "bytes": 8440
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/yutong_build_3s_forecast_quarter.py",
+      "sha256": "2c9a5167966cfc45dbf927baa1eb8c0162b7ea6f3b986c99e35f8b9dbd130363",
+      "bytes": 5171
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/references/yutong_build_rp.py",
+      "sha256": "47edb44dda25645d9cd87d2aa5b5fa16359e56019ec56e7f2d498177df0e1155",
+      "bytes": 32075
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/scripts/calc_check.py",
+      "sha256": "2e8914c03b2ee064f8c8aa15be3e62cd734c94d8cb55d786ad009349d2e21700",
+      "bytes": 3825
+    },
+    {
+      "path": "Claude Skills/revenue-projection-build/SKILL.md",
+      "sha256": "1caa6cf2bb594da10b5493934612ec421c9a3d8b7edf1ce5e42b313094e58099",
+      "bytes": 11880
+    },
+    {
+      "path": "Claude Skills/volume-data-tab/references/longxin_build_data.py",
+      "sha256": "a45be5625dc00a8bb3e2890af4b1c374106d50c1334d772f4f9d0e12a996ce3e",
+      "bytes": 10237
+    },
+    {
+      "path": "Claude Skills/volume-data-tab/references/yutong_build_data.py",
+      "sha256": "543ee40c541a2fa73ca88a66f5b27ccc4e4e04bdd40ddd542f06cd06abb37e7f",
+      "bytes": 17652
+    },
+    {
+      "path": "Claude Skills/volume-data-tab/references/yutong_style_data.py",
+      "sha256": "4ed552bf46a208898bd316e2ea52c42930ec960047c6666cd1771d4dcb17b650",
+      "bytes": 6285
+    },
+    {
+      "path": "Claude Skills/volume-data-tab/SKILL.md",
+      "sha256": "c8763c64593a02b15e96d63ebaa641d4e005eecfbae74c92baa5f129c23271a7",
+      "bytes": 5781
+    },
+    {
+      "path": "Claude Skills/公司模型模板（clean）.xlsx",
+      "sha256": "2881fb8e99f1f1bca8203e58634d40f6cfdcd01a6cd56aa6ef2c006911319cf0",
+      "bytes": 91862
+    }
+  ]
+}

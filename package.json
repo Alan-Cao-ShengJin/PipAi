@@ -17,7 +17,8 @@
     "connectivity:rotate": "node --env-file=.env.signer scripts/rotate-connectivity-agent.mjs",
     "signer:start": "node --env-file=.env.signer packages/connectivity/src/server.ts",
     "connectivity:demo": "node packages/connectivity/src/demo.ts",
-    "connectivity:read": "node --env-file=.env.execution-worker scripts/execution-tool.mjs account.read"
+    "connectivity:read": "node --env-file=.env.execution-worker scripts/execution-tool.mjs account.read",
+    "skills:check": "node skills/scripts/check-bundle.mjs"
   },
   "devDependencies": { "@types/node": "^24.0.0", "typescript": "^5.9.0", "vitest": "5.0.5" }
 }
