@@ -21,7 +21,7 @@ for (const skill of catalog.skills) {
   if (ids.has(skill.id)) errors.push(`Duplicate skill ${skill.id}`); ids.add(skill.id);
   const path = resolve(root, skill.path);
   if (!within(root, path)) { errors.push(`Skill path escapes the bundle: ${skill.id}`); continue; }
-  const text = await readFile(path, 'utf8');
+  const text = (await readFile(path, 'utf8')).replace(/\r\n/g, '\n');
   if (!text.startsWith('---\n') || !/^name: [a-z0-9-]+$/m.test(text) || !/^description: \S.+$/m.test(text)) errors.push(`Invalid entry metadata: ${skill.id}`);
   if (!text.includes(`\nname: ${skill.id}\n`) || dirname(path).split(sep).at(-1) !== skill.id) errors.push(`Entry identity mismatch: ${skill.id}`);
 }

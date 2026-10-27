@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, readdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { resolve, join } from "node:path";
+import { resolve, join, sep } from "node:path";
 import type { AddressInfo } from "node:net";
 import { request as httpRequest } from "node:http";
 import { Address, MandateSchema, OrderSchema, cloid, type Market, type Mandate, type Proposal, type Snapshot } from "./contracts.ts";
@@ -27,11 +28,11 @@ function snapshot(): Snapshot { return { account, network: "testnet", observedAt
 function proposal(): Proposal { return { id: "proposal", mandateId: "mandate", mandateVersion: 1, account, agent: agentAddress, network: "testnet", order, expiresAt: now + 120_000 }; }
 const stores: ExecutionStore[] = [], directories: string[] = [];
 afterEach(() => { vi.unstubAllGlobals(); for (const s of stores.splice(0)) s.close(); for (const d of directories.splice(0)) {
-  if (!resolve(d).startsWith(resolve("D:/CodexData/tmp") + "\\")) throw new Error("Unexpected test cleanup path");
+  if (!resolve(d).startsWith(resolve(tmpdir()) + sep)) throw new Error("Unexpected test cleanup path");
   rmSync(d, { recursive: true, force: true });
 } });
 function store(path = ":memory:") { const s = new ExecutionStore(path); stores.push(s); return s; }
-function temp() { mkdirSync("D:/CodexData/tmp", { recursive: true }); const d = mkdtempSync("D:/CodexData/tmp/pip-connectivity-"); directories.push(d); return d; }
+function temp() { const d = mkdtempSync(join(tmpdir(), "pip-connectivity-")); directories.push(d); return d; }
 function venue(): TradingVenue & { state: Snapshot } {
   const state = snapshot();
   return { agentAddress, state, snapshot: vi.fn(async () => structuredClone(state)), market: vi.fn(async () => ({ ...market })), markets: vi.fn(async () => [{ ...market }]),
