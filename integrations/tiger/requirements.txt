@@ -1,0 +1,28 @@
+# Tested resolution: Python 3.14.7 / macOS arm64. Requires Python 3.12+.
+# tigeropen is pinned because the OAuth scope restriction uses its versioned extension points.
+babel==2.18.0
+backoff==2.2.1
+cffi==2.1.1
+click==8.5.0
+cryptography==50.0.2
+delorean==2.0.0
+docopt-ng==0.9.0
+getmac==0.9.6
+humanize==4.16.0
+jproperties==2.1.2
+numpy==2.5.4
+pandas==3.1.0
+protobuf==7.36.2
+pyasn1==0.6.5
+pycparser==3.12
+python-dateutil==3.0.0
+pytz==2026.5
+rsa==4.9.1
+simplejson==4.2.0
+six==1.17.0
+stomp.py==9.0.0
+tigeropen==3.8.0
+tzdata==2026.5
+tzlocal==5.4.5
+urllib3==2.8.0
+websocket-client==1.9.2

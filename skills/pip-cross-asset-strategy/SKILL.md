@@ -21,7 +21,7 @@ Use underlying-appropriate economics:
 - FX/rates: quote convention, policy/rate differentials, flows and how the quoted reference maps to P&L.
 - Crypto: protocol/token economics, supply/unlocks, usage/value capture, concentration/liquidity and custody/bridge risks. A token is not automatically equity.
 
-Hyperliquid core markets and HIP-3 deployers can differ in oracle, collateral, fees and margin. A traditional-market perpetual is not direct ownership of its reference asset. The operator may use internal pricing when external markets are unavailable; do not assume a frozen oracle. Verify the current [HIP-3 specification](https://hyperliquid.gitbook.io/hyperliquid-docs/hyperliquid-improvement-proposals-hips/hip-3-builder-deployed-perpetuals) and product documentation.
+Use the supported broker's actual instrument and exchange specifications. Distinguish shares, ETFs and dated futures from their underlying references; a continuous futures chart is not an executable contract. Verify multiplier, tick value, margin, session, settlement, expiry and first-notice terms where applicable. Missing instrument coverage remains explicit.
 
 ## Specify the return source
 
@@ -39,7 +39,7 @@ Use only information available at each historical decision time. Align sessions/
 
 Calculate net results after both legs' funding/fees, bid/ask, slippage, rounding/minimums, rebalancing, borrow/roll/custody costs where relevant. Model partial fills, legging, gap moves, market closure, oracle dislocation, collateral segmentation, liquidation and ADL. Daily closes do not establish intraday survivability.
 
-Report sample size, exposure/turnover, drawdown and tail scenarios, net returns versus the baseline, parameter/regime sensitivity, limits of coverage and implementation failures. A numerical backtest is not a guarantee or proof of causality. The initial public pair-screen tool supplies diagnostics only; do not relabel it a completed strategy backtest.
+Report sample size, exposure/turnover, drawdown and tail scenarios, net returns versus the baseline, parameter/regime sensitivity, limits of coverage and implementation failures. A numerical backtest is not a guarantee or proof of causality. Correlation and pair-screen diagnostics are not completed strategy backtests.
 
 ## Handoff
 

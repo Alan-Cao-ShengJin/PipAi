@@ -1,3 +1,5 @@
+> Historical imported discussion. Current requirements are in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) and [PRODUCT_PLAN.md](docs/PRODUCT_PLAN.md). The founder retired crypto-wallet and Hyperliquid connectivity on 27 October 2026; any older connection instructions below are superseded.
+
 # Handoff: autonomous personal investment manager
 
 Updated: 27 October 2026, Asia/Singapore.

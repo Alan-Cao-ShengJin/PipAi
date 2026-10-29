@@ -77,7 +77,7 @@ export const DemoStateSchema = z.object({
   mandate: MandateSchema.nullable(), portfolio: PortfolioSchema.nullable(), proposal: ProposalSchema.nullable(),
   orders: z.array(OrderSchema), usage: UsageSchema, paused: z.boolean(),
   activity: z.array(z.object({ id: z.string(), title: z.string(), detail: z.string(), createdAt: z.string() })),
-  capabilities: z.object({ liveExecution: z.literal(false), walletConnected: z.literal(false), liveMarketData: z.literal(false), scriptedAgent: z.literal(true) }),
+  capabilities: z.object({ liveExecution: z.literal(false), brokerConnected: z.literal(false).default(false), liveMarketData: z.literal(false), scriptedAgent: z.literal(true) }),
 });
 export type DemoState = z.infer<typeof DemoStateSchema>;
 const revision = z.number().int().nonnegative();
@@ -105,7 +105,7 @@ export function createDemo(): DemoState {
     contractVersion: CONTRACT_VERSION, user: { id: id(), displayName: "You" }, revision: 0, createdAt: now(), profile: {},
     messages: [], mandate: null, portfolio: null, proposal: null, orders: [],
     usage: { researchRuns: 0, modelCostCents: 0, modelCalls: 0 }, paused: false, activity: [],
-    capabilities: { liveExecution: false, walletConnected: false, liveMarketData: false, scriptedAgent: true },
+    capabilities: { liveExecution: false, brokerConnected: false, liveMarketData: false, scriptedAgent: true },
   };
   message(state, "assistant", questions.goal.prompt);
   event(state, "Your workspace is ready", "A private browser demo with simulated money and a scripted guide.");
@@ -239,7 +239,7 @@ export function applyCommand(input: DemoState, command: Command): DemoState {
     proposal.checks = checks;
     proposal.status = "applied";
     event(state, proposal.allocations.length ? "Paper decision recorded" : "No-action decision recorded", "Hypothetical immediate fills at fixed fixture marks. Fees included; no real orders sent.");
-    message(state, "assistant", "Your simulated decision has been recorded. The paper portfolio reflects hypothetical fees. No wallet or exchange was contacted.");
+    message(state, "assistant", "Your simulated decision has been recorded. The paper portfolio reflects hypothetical fees. No broker was contacted and no real order was sent.");
   } else if (command.type === "review") {
     if (state.mandate?.status !== "approved" || !state.portfolio) throw new DomainError("Approve a paper mandate before requesting a review.");
     if (state.usage.researchRuns >= 20) throw new DomainError("This demo’s 20-review allowance is used. Your portfolio and pause controls remain available.", 429);

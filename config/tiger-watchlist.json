@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "references": [
+    {
+      "label": "E-micro gold mini main",
+      "identifier": null,
+      "resolution": "Exact Tiger product and contract identifier still required."
+    },
+    {
+      "label": "BZmain",
+      "identifier": "BZmain",
+      "resolution": "User-entered research reference; dated executable contract is not established."
+    }
+  ]
+}

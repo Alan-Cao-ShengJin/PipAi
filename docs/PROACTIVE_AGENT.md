@@ -1,8 +1,10 @@
 # Persistent research agent
 
-Implemented locally on 26 October 2026. The goal is ongoing ownership of the user's mandate: continue the next useful investigation, preserve unfinished work and return with a decision or a concrete next task. A return ambition does not widen the approved risk or tool permissions.
+Updated: **27 October 2026**. The reusable runtime lives in `packages/harness`; it is separate from the scripted web app. The former venue-specific live CLI was removed when the founder retired crypto-wallet and Hyperliquid connectivity. Broker/source adapters and their authenticated caller remain to be built.
 
-## Behaviour
+## Behavior and ownership
+
+The goal is ongoing ownership of the user's mandate: continue the next useful investigation, preserve unfinished work and return with a decision or a concrete next task. A return ambition does not widen approved risk or tool permissions.
 
 ```mermaid
 flowchart LR
@@ -16,85 +18,51 @@ flowchart LR
   B --> G[Candidate for independent validation]
 ```
 
-The runner does not finish merely because the model has written a chat answer. Its response must request further registered reads or produce a structured review with a nonempty next task. A watching review saves that task and schedules another cycle 24 hours later. A user-requested review can start earlier. Idle worker polling does not call the model.
+An ordinary chat answer does not end a continuing responsibility. A model response must request permitted reads or produce a structured review with a next task. A watching review saves the task and schedules a later cycle; a user-requested review can start earlier. Idle polling does not call the model. A process must invoke the runtime for due work; no hosted scheduler is deployed.
 
-The model owns hypothesis selection, tool requests and research synthesis within the supplied mandate. Server code owns identity, authority, budgets, wake-up timing, replay and dispatch. It checks the current approved context before each step. “Make me a millionaire” is a target to assess, not authority to add leverage, move funds or promise an outcome. An infeasible review must include a concrete question about revising the target or constraints.
+The model selects hypotheses and requests tools within the supplied mandate. Server code owns identity, authority, budgets, timing, replay and dispatch. It checks the approved context before each step. The current context accepts paper-only authority and synthetic/read-only snapshots; production broker/import/freshness contracts still need migration.
 
-## What works
+## Implemented components
 
-- `packages/harness/src/agent.ts`: bounded model/read loop, strict review protocol, complete-batch preflight, evidence-reference checks, unchanged-read detection, input/output bounds and structured failure states.
-- `agent-store.ts`: SQLite goal state, next task, checkpoints, durable model-request inputs, per-cycle updates, recent user messages and exclusive expiring worker leases. Pausing fences subsequent dispatch; an in-flight provider request may still incur a charge.
-- `ledger.ts`: tenant/run model and tool reservations, receipts, cached results and unknown-outcome holds. Existing ledgers gain an operation-kind column; tool event names remain compatible.
-- `openrouter.ts`: opt-in official `@openrouter/sdk` 1.5.7 transport. Explicit model, JSON output, no SDK retries or provider fallbacks, token cap, cancellation and required provider cost metadata. Malformed or truncated output cannot dispatch tools; known usage is recorded.
-- `scripts/run-agent.mjs`: local worker with two real public-market tools, the existing cross-asset screen and one-market metadata/price/funding refresh. Captured screen inputs are saved under `.data/agent/evidence/` with a hash in the model-visible result.
-- `agent-demo.ts`: fully offline deterministic flow that continues from screening to a second investigation, saves the next task, reopens the databases and resumes at a simulated daily wake-up.
+- `agent.ts`: bounded model/read loop, strict reviews, batch preflight, evidence-reference checks, unchanged-read detection, input/output bounds and failure states.
+- `agent-store.ts`: SQLite goals, next tasks, checkpoints, model-request inputs, updates, recent user messages and expiring worker leases. Pause fences subsequent dispatch; an already-running paid request may still incur a charge.
+- `ledger.ts`: tenant/run reservations, receipts, replay and unknown-outcome holds, with integer micro-US-dollar accounting.
+- `openrouter.ts`: reusable official SDK adapter with explicit model, JSON output, no SDK retries/fallbacks, output cap, cancellation and required usage metadata. Verified against mock HTTP only.
+- `agent-demo.ts`: deterministic offline continuation, persisted next task, database reopen and simulated daily wake-up.
 
-The worker is separate from the scripted web app. The CLI's account allocation is explicitly synthetic; its market reads are real and separately labelled. The example goal is a workflow configuration, not evidence of a verified wallet or an approved investment strategy.
+The generic gateway contains no built-in live market-data or broker tools. A caller must register reviewed adapters and supply trusted account context. The removed research CLI and its configuration are not current setup instructions. `.env.example` is an adapter-configuration reference, not a runnable live service.
 
-## Try the offline flow
+## Run the offline examples
 
-```powershell
+```sh
+npm run harness:demo
 npm run agent:demo
 ```
 
-This uses fabricated model outputs, market evidence and usage charges. It sends no network requests and does not start a background service. It shows that the runtime continues work and resumes its saved next task; it does not validate investment performance.
+Both use fabricated observations; the agent demo also uses fixture model outputs and usage charges. They make no external network or real-model calls and do not start a persistent background service. They verify workflow behavior, not research quality or trading performance.
 
-## Configure real model research
+## Failure and budget behavior
 
-1. Copy `.env.example` to `.env.harness`. Set `OPENROUTER_API_KEY` and an explicit `PIP_MODEL` supporting JSON output. Keep the key local; do not paste it into chat. No model is selected automatically.
-2. Review `config/research-goal.example.json`. It describes a hypothetical allocation and approved research/paper-only bounds. The CLI rejects a `live-read-only` portfolio input because authenticated real-account loading has not been implemented.
-3. Run one cycle:
+The default proactive cycle has bounded model steps, tool reads, elapsed time, input size and output. Actual limits are set by the caller. Accounting reserves an expected maximum before dispatch and settles from trusted adapter receipts. Missing receipts and interrupted requests retain reservations and block blind retry. A declared reservation is not a provider-enforced billing guarantee.
 
-```powershell
-npm run agent:run -- --goal config/research-goal.example.json
-```
+Completed results replay after restart. Expiring leases allow recovery while fencing stale workers. A cycle can resume against pinned context only while it remains valid; otherwise refresh or reconciliation is needed. Pause, stale authority, malformed/truncated output, invalid evidence, no-progress loops and exhausted budgets produce explicit states.
 
-To leave the local worker checking for its next due cycle:
+The current local ledger lacks production period rollover/top-up and operator reconciliation workflows. The S$500 founder operating ceiling is a broader budget, not a limit already enforced across vendors by this runtime.
 
-```powershell
-npm run agent:run -- --goal config/research-goal.example.json --watch
-```
+## Work still required
 
-To request another review with user intent, retaining the approved mandate:
+1. Standard production identity, shared async storage, trusted broker account/context loading and tenant isolation.
+2. Tiger contracts/account/price adapters and source-specific freshness/coverage policies; imported data remains explicitly separate.
+3. Reviewed macro/source retrieval and deterministic calculation tools, selective skills and versioned research artifacts.
+4. Real-provider evaluation with complete usage/cost receipts and selected provider-side controls.
+5. Cloud jobs, restart/deploy fencing, next-task/outbox transactions, backups and independent operations monitoring.
+6. Deterministic event/position watches, activation acknowledgment, deduplication and remote notifications. A daily review date is not live monitoring.
+7. Independent paper proposal/approval integration and later broker order services with their own authority/risk gates.
 
-```powershell
-npm run agent:run -- --goal config/research-goal.example.json --review "Prioritise testing funding and execution costs."
-```
+A `proposal-ready` review is an unvalidated candidate. It creates no approval, position or order. External text and model outputs remain untrusted; shape/citation-reference checks do not prove claim support, suitability or profitability.
 
-To pause from a second terminal:
+## Verification
 
-```powershell
-npm run agent:run -- --goal config/research-goal.example.json --pause
-```
+Current tests cover multi-step continuation, idle/daily behavior, workers, reopen/replay, uncertain calls, authority/pause changes, batch denial, truncation, repeated reads, budget failure, stale context and tenant isolation. Adapter tests use mock HTTP for usage, malformed output, missing receipts and no upstream retry.
 
-The worker uses `.data/agent/work.sqlite` and `.data/agent/usage.sqlite`. Stop with Ctrl+C. Restarting the worker preserves due dates, goal state, request records and usage. The computer and process must remain running for scheduled work; no cloud service or OS startup task has been deployed.
-
-Research messages cannot revise the bound goal, approved mandate or tool grants. Such a revision requires a newly authorised goal/configuration; a production mandate-update flow is still needed. The last five user research messages are supplied as intent data on a fresh cycle, not as permission changes.
-
-## Limits and failure behaviour
-
-Defaults: at most eight model steps, sixteen tool reads and ninety seconds per cycle; thirty seconds per model call; 60,000 input characters and 2,000 output tokens. The public screen adapter has a sixty-second tool timeout and at most sixty public API requests per capture. Cancellation propagates to those requests.
-
-The example allowance is US$1 total for the local tenant and US$0.20 per cycle, with a US$0.05 reservation per model call, all stored as integer micro-US dollars. These are deliberately small development allowances, separate from the overall S$200 pilot ceiling. No funds are spent until credentials/model are configured and the worker is invoked. Existing allowances cannot be enlarged through configuration edits; period rollover, top-ups and operator reconciliation need a separate workflow.
-
-These reservations are accounting controls, not a provider-enforced billing guarantee. Configure provider-side limits before a funded pilot. A cost overrun records the actual charge and freezes further spending. Missing receipts and interrupted requests retain their reservations and block automatic retries. An unresolved zero-cost read is still unresolved; a zero dollar reservation is not proof of completion.
-
-Completed request results replay after a crash without a second dispatch. An expired lease allows recovery by another worker, while a lease token fences old workers. An unfinished cycle can resume against its pinned context while it remains fresh. If its context has expired and every dispatch has a receipt, a new cycle refreshes evidence; otherwise reconciliation is required. The original requests/results remain available in the local journal.
-
-Step/time limits preserve the investigation for the next daily review. Unchanged repeated reads schedule a different investigation rather than busy-looping. Budget exhaustion is visible and does not silently raise the allowance. Protocol failures, changed authority and invalid evidence references block the cycle for inspection. Essential missing user input and goal/constraint conflicts remain explicit questions.
-
-## Practical limits
-
-- This is a local explicit-state runtime spike, not a production distributed scheduler. Database backup, identity, multi-device API access, retention, worker operations and comparison with other workflow engines remain open.
-- The installed provider adapter has been tested with mock HTTP responses only. No configured provider key was present during implementation; real model quality, compatibility, latency and billing semantics have not been exercised.
-- The two public tools provide market diagnostics and current metadata. They do not establish a profitable entry signal. Longer research histories, economic-source retrieval, deterministic strategy testing and portfolio-wide validation need additional reviewed adapters and evaluation.
-- Model outputs and sourced text remain untrusted. Schema and citation-reference checks do not establish that a claim is true, that its sources support it, or that a strategy is suitable.
-- A `proposal-ready` review is an unvalidated strategy candidate with risks and outstanding checks. It creates no approval, paper position or live order. Independent proposal/risk checks and exact paper approval integration remain future work.
-- Timed reviews are implemented. Deterministic market/portfolio watch rules, event-driven model triggers, monitoring-health checks and remote alert delivery are not. Writing a condition in prose does not activate monitoring. The CLI only prints local updates.
-- No wallet connection, signing, fund movement or live trading tools are registered. The web app still uses its separate scripted demo.
-
-## Verification and references
-
-Tests cover multi-step continuation, idle/daily behaviour, exclusive workers, crash/reopen replay, uncertain calls, pause/authority changes, batch denial, token truncation, repeated reads, budget exhaustion/overruns, unsupported instruments, invented evidence, stale context, user follow-ups and tenant isolation. SDK tests exercise the actual installed transport against mock HTTP, including usage conversion, malformed output, truncation, missing receipts and no retry on upstream errors.
-
-Provider references checked during implementation: [official TypeScript SDK](https://github.com/OpenRouterTeam/typescript-sdk), [JSON output support](https://openrouter.ai/docs/guides/features/structured-outputs), and [usage receipts](https://openrouter.ai/docs/cookbook/administration/usage-accounting). Exchange sources and the quantitative screen's limitations are recorded in the [pair study](research/HYPERLIQUID_PAIR_SCREEN_2026-10-26.md).
+See the [baseline report](BASELINE_CHECK.md) for actual check results, [harness design](HARNESS_DESIGN.md) for boundary rationale, and [product plan](PRODUCT_PLAN.md) for the broker-backed implementation sequence. No real provider quality/billing, broker access, hosted observation or notification service has been verified.

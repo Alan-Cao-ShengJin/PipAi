@@ -7,13 +7,18 @@ export class OpenRouterAdapter implements ModelAdapter {
   readonly provider = "openrouter";
   readonly model: string;
   private client: OpenRouter;
-  constructor(options: { apiKey: string; model: string; httpClient?: HTTPClient }) {
+  private mode: "connection-only" | "inference";
+  constructor(options: { apiKey: string; model: string; httpClient?: HTTPClient; mode?: "connection-only" | "inference" }) {
     if (!options.apiKey.trim()) throw new HarnessError("PROVIDER_NOT_CONFIGURED", "Configure OPENROUTER_API_KEY locally; do not paste it into chat.");
     this.model = Identifier.parse(options.model);
+    this.mode = options.mode ?? (process.env.PIP_MODEL_MODE === "inference" ? "inference" : "connection-only");
     this.client = new OpenRouter({ apiKey: options.apiKey, serverURL: "https://openrouter.ai/api/v1",
       retryConfig: { strategy: "none" }, httpClient: options.httpClient });
   }
   async complete(request: Parameters<ModelAdapter["complete"]>[0]): ReturnType<ModelAdapter["complete"]> {
+    if (this.mode !== "inference") {
+      throw new HarnessError("INFERENCE_DISABLED", "Runtime model use is connection-only. Paid inference has not been enabled.");
+    }
     const result = await this.client.chat.send({ chatRequest: {
       model: this.model, stream: false, maxTokens: request.maxOutputTokens,
       responseFormat: { type: "json_object" },

@@ -2,7 +2,7 @@
 
 ## Work in decision-sized units
 
-Start with a research brief: decision/question; user objective and deadline; mandate id/version; allocation intent; permitted instruments, exposure and leverage; withdrawal needs; existing positions in scope; paper/actual mode; information cutoff; baseline; budget; required deliverable. Unknown constraints are unresolved, not inferred from a wallet balance or a dramatic return target.
+Start with a research brief: decision/question; user objective and deadline; mandate id/version; allocation intent; permitted instruments, exposure and leverage; withdrawal needs; existing positions in scope; paper/actual mode; information cutoff; baseline; budget; required deliverable. Unknown constraints are unresolved, not inferred from a broker balance or a dramatic return target.
 
 The approved mandate is owned by the application. A research brief may propose a change, but cannot make it effective. Personal loss capacity is neither an expected return nor an instruction to consume the full loss budget.
 

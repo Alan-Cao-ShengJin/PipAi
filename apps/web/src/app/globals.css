@@ -18,12 +18,6 @@ input { min-width: 0; }
 .pip-demo-label { color: var(--subtle); font-size: 10px; line-height: 1.4; white-space: nowrap; }
 .pip-brand { font-size: 25px; line-height: 1; font-weight: 600; letter-spacing: -1px; text-decoration: none; }
 .pip-header-actions { display: flex; align-items: center; gap: 14px; }
-.hyperliquid-status { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: var(--muted); text-decoration: none; white-space: nowrap; font-size: 12px; }
-.hyperliquid-status:hover { color: #fff; }
-.hyperliquid-light { display: block; width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: rgb(255 255 255 / .3); }
-.hyperliquid-status.is-connected .hyperliquid-light { background: #3cff7b; box-shadow: 0 0 9px rgb(60 255 123 / .7), 0 0 0 3px rgb(60 255 123 / .08); }
-.hyperliquid-network { padding: 1px 5px; border: 1px solid var(--line); border-radius: 5px; color: var(--subtle); font-size: 9px; line-height: 1.5; }
-.wallet-welcome > .hyperliquid-status { margin-top: 18px; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; padding: 8px; border: 0; border-radius: 50%; background: transparent; color: var(--subtle); }
 .icon-button:hover { color: #fff; background: rgb(255 255 255 / .06); }
 .pip-menu { position: relative; }
@@ -114,71 +108,18 @@ dialog::backdrop { background: #0007; }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Wallet connection stays a single action; trading settings appear only after sign-in. */
-.wallet-button-group { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; position: relative; }
-button.wallet-connect-button { display: inline-flex; gap: 9px; align-items: center; justify-content: center; border: 1px solid #fff; border-radius: 6px; padding: 10px 16px; background: var(--accent); color: #000; font-weight: 550; font-size: 13px; }
-.wallet-connect-button:hover:not(:disabled) { background: #000; color: #fff; }
-.compact button.wallet-connect-button { padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ink); font-size: 12px; font-weight: 400; }
-.compact button.wallet-connect-button:hover:not(:disabled) { color: var(--muted); }
-.wallet-connected { display: inline-flex; gap: 8px; align-items: center; text-decoration: none; border: 1px solid var(--line); background: var(--status-bg); color: var(--accent); padding: 9px 13px; border-radius: 6px; }
-.compact .wallet-connected { padding-inline: 0; border: 0; font-size: 12px; font-variant-numeric: tabular-nums; }
-.wallet-button-error { width: 100%; color: var(--attention); font-size: 13px; }
-.compact .wallet-button-error { position: absolute; z-index: 15; right: 0; top: 100%; padding: 12px; width: 260px; border: 1px solid var(--line); border-radius: 8px; background: var(--sidebar); }
-.connection-page { max-width: 900px; margin: 0 auto; padding: 30px 24px 80px; }
-.connection-page > a { color: var(--muted); font-size: 13px; text-decoration: none; }
-.connection-page p { color: var(--muted); margin-block: 12px; }
-.wallet-welcome { max-width: 540px; margin: 100px auto 60px; padding: 20px 0; text-align: left; }
-.wallet-welcome h1 { font-size: clamp(30px, 4vw, 40px); line-height: 1.2; letter-spacing: -.05em; font-weight: 400; margin-block: 6px 20px; }
-.wallet-welcome > p { font-size: 15px; line-height: 1.8; }
-.wallet-welcome .wallet-button-group { justify-content: flex-start; margin-top: 30px; }
-.connection-page .wallet-assurance { color: var(--subtle); margin-top: 24px; font-size: 11px; }
-.connection-section { border-top: 1px solid var(--line); padding: 24px 0; margin-block: 20px; }
-.connection-section h2 { font-size: 18px; font-weight: 500; }
-.connection-page label { display: grid; gap: 6px; font-size: 13px; margin-block: 12px; }
-.connection-page input, .connection-page select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
-.connection-page button:not(.wallet-connect-button):not(.primary-button) { padding: 10px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
-.connection-page button:not(.wallet-connect-button):not(.primary-button):hover:not(:disabled) { background: #fff; color: #000; }
-.connection-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
-.connection-fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 0 20px; }
-.connection-page pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; padding: 16px; background: var(--bg); }
-.connection-message { position: sticky; bottom: 12px; background: var(--sidebar); padding: 12px; border-radius: 8px; }
-.trading-settings { max-width: 700px; margin-inline: auto; }
-.trading-settings > summary { cursor: pointer; font-size: 15px; font-weight: 500; }
-.trading-settings > summary .pill { margin-left: 10px; }
-.wallet-limits { margin-block: 20px; }
-.wallet-limits summary { cursor: pointer; color: var(--muted); }
-.wallet-proposal { padding-block: 14px; border-top: 1px solid var(--line); }
-.pill { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 11px; padding: 4px 0; }
-.connection-setup { max-width: 760px; padding-top: 28px; }
-.setup-panel { max-width: 480px; margin: clamp(48px, 10vh, 96px) auto 32px; scroll-margin-top: 28px; }
-.setup-panel h1 { font-size: 32px; font-weight: 500; line-height: 1.25; letter-spacing: -.035em; }
-.connection-setup .setup-intro { margin: 16px 0 24px; font-size: 14px; line-height: 1.8; }
-.setup-connections { margin: 24px 0; }
-.setup-connections .wallet-button-group { display: block; }
-.setup-wallet-row, .connection-setup .setup-hyperliquid-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; border-bottom: 1px solid var(--line); font-size: 13px; }
-.setup-wallet-row > svg { flex-shrink: 0; color: var(--muted); }
-.setup-row-state { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
-.setup-wallet-menu { position: relative; }
-.setup-wallet-menu summary { cursor: pointer; list-style: none; font-size: 10px; color: var(--subtle); }
-.setup-wallet-menu summary::-webkit-details-marker { display: none; }
-.setup-wallet-menu button { position: absolute; right: 0; top: calc(100% + 12px); z-index: 5; min-width: 120px; }
-.setup-next-action { margin-top: 28px; }
-.connection-setup .setup-next-action > .primary-button { display: flex; width: 100%; min-height: 46px; border-radius: 10px; font-size: 14px; text-decoration: none; }
-.connection-setup .setup-next-action > .quiet-button { display: block; margin: 10px auto 0; border: 0; font-size: 12px; }
-.connection-setup .setup-message { margin: 16px 0 0; font-size: 12px; line-height: 1.7; }
-.connection-setup .setup-assurance { margin: 20px 0 0; font-size: 11px; line-height: 1.8; color: var(--subtle); }
-.setup-advanced { max-width: 480px; margin: 32px auto 0; }
-.setup-advanced > summary { font-size: 12px; font-weight: 400; color: var(--subtle); }
-/* Wallet remains the only primary action beside the conversation. */
-.pip-header .compact button.wallet-connect-button { min-height: 40px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 20px; font-size: 12px; }
-.pip-header .compact button.wallet-connect-button:hover:not(:disabled) { border-color: #fff; color: #fff; }
+/* Broker setup stays beside the assistant's reply in the conversation. */
+.pip-broker-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: min(88%, 676px); padding: 8px 0 14px 16px; }
+.pip-broker-actions .secondary-button { border-radius: 20px; font-size: 12px; text-decoration: none; }
+.pip-broker-actions .quiet-button { font-size: 12px; }
+.pip-broker-wait { display: inline-flex; align-items: center; gap: 7px; width: 100%; padding-block: 4px; color: var(--subtle); font-size: 11px; }
+.pip-broker-help { color: var(--subtle); font-size: 11px; }
+.pip-broker-help summary { display: flex; align-items: center; min-height: 44px; padding-inline: 8px; cursor: pointer; }
+.pip-broker-help[open] { width: 100%; }
+.pip-broker-help p { max-width: 420px; padding: 0 8px 8px; line-height: 1.8; }
+
 @media (max-width: 700px) {
-  .pip-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; height: auto; min-height: 60px; gap: 4px 12px; padding: 10px 16px 6px; }
-  .pip-header-brand { grid-area: 1 / 1; }
-  .pip-header-actions { display: contents; }
-  .pip-header-actions > .hyperliquid-status { grid-area: 2 / 1 / 3 / -1; justify-self: start; min-height: 28px; font-size: 11px; }
-  .pip-header-actions > .wallet-button-group { grid-area: 1 / 2; margin-right: 48px; }
-  .pip-header-actions > .pip-menu { grid-area: 1 / 2; justify-self: end; }
+  .pip-header { padding: 8px 16px; gap: 12px; }
 }
 @media (max-width: 599px) {
   .pip-header-brand { display: grid; gap: 3px; }
@@ -193,7 +134,5 @@ button.wallet-connect-button { display: inline-flex; gap: 9px; align-items: cent
   .pip-suggestions { gap: 6px; }
   .pip-suggestions button { font-size: 11px; padding-inline: 11px; }
   .inline-plan { width: 90%; padding: 18px; }
-  .wallet-welcome { margin-top: 70px; }
-  .connection-section { padding: 18px 0; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

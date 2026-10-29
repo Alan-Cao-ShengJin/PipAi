@@ -1,22 +1,64 @@
 # Engineering decisions
 
-## 0007 ? Mainnet connection checks without trading authority
+## 0016 — Conversation-based broker setup and shared research architecture
 
-Date: 26 October 2026. Status: implemented locally.
+Date: 27 October 2026. Status: conversational local setup implemented; shared research planned.
 
-The founder requested skipping testnet and explicitly selected connection and read-only checks only. Web onboarding now signs in the existing browser wallet and automatically reads that owner's Hyperliquid mainnet account. No API trading key approval or chain switch is needed. A fixed, authenticated `mainnet.account.read` gateway provides bounded public account reads; it has no mainnet exchange client or signing key. The fresh green indicator is labelled Mainnet / Read only. Core perps and spot details have explicit scope; builder-deployed markets are excluded. The previous testnet execution package, history and authorities remain isolated and are not migrated to mainnet. Mainnet trades and transfers remain unavailable.
+The user prefers broker setup in the agent's text interface. Replace the separate broker screen with inline prompts/actions, typed account selection, persistent acknowledgments and recovery in the existing conversation. Broker-owned sign-in/consent remains external and returns to the same thread automatically. Preserve existing per-browser isolation/read-only policy. Current shortcuts are deterministic and do not invoke a language model. Old broker-page links redirect to the thread. This supersedes 0015's separate-page presentation.
 
-## 0006 — Existing wallet support and restricted Hyperliquid signer
+The user approves common research reuse: ingest/verify reusable licensed market facts once, keep versioned common artifacts, and personalize implications separately. Deduplicate concurrent jobs, enforce source/recipient entitlements and freshness/vintage invalidation, and meter shared work once. Personal portfolios, chats, theses and authority stay private. No live research pipeline, model spend or unrestricted cross-user cache is authorized by this direction. Acceptance details are in the product plan and PIP-008.
 
-Date: 26 October 2026. Status: local testnet tools implemented; production deployment and funded venue verification remain open.
+## 0015 — Move broker authorization into the web experience
 
-The founder initially selected a separate user-owned trading wallet/account, then clarified that the existing MetaMask account must also work. Verify ownership when linking the trading account, but allow it to equal the primary sign-in account. Only the API/agent wallet must always be a separate address. Record the actual address separation in the wallet-signed mandate; do not claim a shared account has isolated capital. An API wallet supplies delegated signing; it is not the funded trading account. Do not use a subaccount label as a capital-isolation guarantee.
+Date: 27 October 2026. Status: local browser preview implemented; commercial/hosted customer route unverified.
 
-Web onboarding uses one **Connect wallet** button that opens the installed browser wallet. No backend token, API key, address or other credential is typed or pasted by the user. Backend setup remains server-side. Browser-bound ownership challenges establish an HttpOnly session; optional trading permissions are separate and remain wallet-authorized. Reconnection does not recreate identity or grant trading authority.
+Users connect through **Broker accounts → Connect Tiger**, approve read access with Tiger and choose an authorized account in Pip. Preserve money/trading at the broker and distinguish connection from portfolio sync/monitoring. No terminal or copied API credentials in the normal preview flow; Tiger’s personal OpenAPI activation requirement still applies.
 
-Keep the worker's model-visible tool client separate from the signer process and control credential. Require wallet-signed versioned mandates, exact proposal approval by default, fresh independent risk checks, durable single submission and explicit reconciliation. No model tool can withdraw, transfer, set account mode, set leverage, change fees or sign arbitrary payloads. Only core-perpetual IOC orders and recorded-order cancellations are implemented, on testnet with execution disarmed by default. Other products/account modes fail closed. Initial mandates expire within 24 hours. A revoked/expired agent must be replaced with a fresh key while preserving history.
+Each browser owns a separate private credential store and opaque account choices. Do not reuse the founder’s CLI grant for web users. The current SDK uses a same-computer callback, so this adapter accepts loopback hosts only. A hosted customer offering needs authenticated ownership, an approved hosted authorization route and encrypted managed credentials; assess Tiger’s documented commercial app registration. [Implementation, sources and verification](BROKER_ONBOARDING.md).
 
-See [implementation, setup, threat model and launch gates](HYPERLIQUID_CONNECTIVITY.md). Application permissions are not a cryptographic restriction on a stolen venue API key. No customer/mainnet funds are enabled by this decision.
+## 0014 — Connection tests only; protect local credentials
+
+Date: 27 October 2026. Status: user-directed spending restriction implemented.
+
+Use API credits only for connection checks for now. Do not run generation, research, benchmarks or background model activity without a new spending instruction. The OpenRouter adapter defaults to connection-only and blocks generation before dispatch. Offline demos/tests use fake transports.
+
+Move the OpenAI key from tracked `.env.example` to ignored local `.env` with owner-only permissions; examples contain empty placeholders. The connection helper uses only a fixed model-list GET, no prompt, retries or fallback, and prints sanitized metadata. Authentication passed with zero generation requests; inference billing and remaining credits are unverified. OpenAI and OpenRouter credentials are separate.
+
+## 0013 — Multi-user foundation and initial OpenRouter transport
+
+Date: 27 October 2026. Status: user-directed product correction reflected in plan/backlog; shared platform implementation pending.
+
+Pip is a product for supported users with different goals, portfolios, experience and horizons. Alan’s Tiger macro/futures workflow is one validation case. Build shared identity, isolated memory/accounts/jobs/budgets, adaptive onboarding and research-only mandates in the initial slice. Verify two distinct identities; personal broker activation does not block fixture-based product development. The Tiger diagnostic’s local token store is not a production customer store.
+
+Reuse the existing OpenRouter model gateway initially; evaluate explicit provider routes before live research. Broker APIs/aggregators provide authorized account access separately. Customers need neither LLM keys nor a developer account as an assumed product requirement; commercial broker authorization still requires investigation. A direct model adapter is optional. This supersedes 0010’s founder-only prioritization and provisional direct-provider recommendation.
+
+## 0012 — Implement a local Tiger read-only access spike
+
+Date: 27 October 2026. Status: local probe and 30 offline tests implemented; read-only OAuth and bounded live reads subsequently verified. Futures history and quote permissions remain unresolved; quotes and monitoring unverified.
+
+Use the official Python SDK pinned at 3.8.0 in an isolated local environment. Give Pip its own OAuth registration and private token store, request only the four supported read scopes, reject broader/unknown grants and independently allowlist read business methods before dispatch. Do not claim device quote permissions during initialization or expose arbitrary SDK/order operations.
+
+The probe reports bounded account/position/order/fill, permission and futures-contract reads with gaps, times, quantities and continuous-reference limits explicit. Reports remain local; no broker data is sent to models. The current gold label is unresolved, and `BZmain` remains a research reference. This diagnostic is not shared production identity, active monitoring, a complete account reconciliation or customer-ready broker onboarding. See [setup and verification](TIGER_ACCESS.md).
+
+## 0011 — Broker accounts replace crypto-wallet and venue connectivity
+
+Date: 27 October 2026. Status: founder-directed removal implemented; broker integration remains planned.
+
+Funds and trading stay with the user's broker. Remove the wallet/Hyperliquid UI, connection page/API, browser discovery/signatures, session/account adapters, signer/execution package, setup/rotation tools, dependencies and venue-specific market-research CLI/configuration. Do not replace them with a pretend broker connection. The generic paper domain, research harness, provider adapter and analytical skills remain.
+
+Standard application identity and separately authorized broker access are the intended direction. Tiger is first for the founder; actual account/data/contract access and later broker order execution need implementation and verification. Future approvals, risk enforcement and reconciliation will be broker-specific rather than wallet-signing flows.
+
+## 0010 — Founder-first Tiger macro/futures workflow and delivery plan
+
+Date: 27 October 2026. Status: founder requirements confirmed; implementation recommendations planned, not yet verified in production.
+
+Alan is the solo founder and first heavy user. Prioritize Tiger Brokers US/futures event-and-macro trading held hours to days, with an initial S$500/month operating ceiling excluding existing coding subscriptions and Apple membership. Build persistent, source-backed research and actual position/event monitoring first; support paper decisions and a thin native SwiftUI client next. Exact-approval trading and bounded autonomy are separate later capabilities with independent broker, risk, operating and regulatory gates.
+
+The [current plan](PRODUCT_PLAN.md) and [backlog](BUILD_BACKLOG.md) bridge the existing disconnected prototypes. Keep Pip-owned context, policy, research memory and metering; provisionally select a direct Sol API adapter and shared Postgres/private storage, subject to evaluation and deployment spikes. Add macro/event and futures methods to the existing research bundle rather than forcing short-term futures work through the company-model route. Investigate Tiger access/data rights immediately; personal retail access does not establish commercial multi-user permission.
+
+The Singapore commercial ambition includes an appropriate MAS route; obtain a scoped assessment before external personalized recommendations, not only before automated execution. Earlier records below retain implementation history and do not override the new founder scope or budget.
+
+Decisions 0006 and 0007 are retired by 0011; their connection and execution stack has been removed.
 
 ## 0001 — Own the application harness and isolate provider transports
 
@@ -47,19 +89,17 @@ Background observation and deterministic alerts have a different cadence from mo
 
 Date: 26 October 2026. Status: founder-directed interaction policy; real connection/read adapters remain unimplemented.
 
-Once MetaMask and Hyperliquid are authorised and connected, the agent should obtain balances, token identities, positions and other available account facts through tools. Check connection state first and request the missing connection when necessary. Ask follow-up questions about user intent or genuinely missing/conflicting information, rather than asking the user to manually supply facts available from connected sources.
+Once broker access is authorized and connected, the agent should obtain balances, positions, margin, orders and other available account facts through tools. Check connection state first and request the missing connection when necessary. Ask follow-up questions about user intent or genuinely missing/conflicting information, rather than asking the user to manually supply facts available from connected sources.
 
-Read access does not confer trading authority, and observed holdings do not define the user's allocated capital. Source timestamps and unsupported chains/accounts must be explicit. Never present simulated or missing connection data as an observed balance.
+Read access does not confer trading authority, and observed holdings do not define the user's allocated capital. Source timestamps and unsupported instruments/accounts must be explicit. Never present simulated or missing connection data as an observed balance.
 
 ## 0004 — Research across supported asset classes before allocating
 
-Date: 26 October 2026. Status: founder-directed scope; standalone public-data screen completed, production strategy validation open.
+Date: 26 October 2026. Status: founder-directed scope; broker instrument coverage and production strategy validation open.
 
-Do not equate Hyperliquid with crypto-only coverage. Discover and validate core and builder-deployed markets, including applicable equities, indices, commodities and currencies. Distinguish diversification, directional theses, factor hedges, relative value and spot/perpetual carry. Each strategy needs an economic rationale, evidence, contract/cost analysis and explicit failure conditions before it can support an allocation. Correlation, listing availability, a loss budget or an LLM narrative alone cannot establish an investment case or portfolio weights.
+Discover and validate the supported broker instruments, including applicable equities, indices, commodities and currencies. Distinguish diversification, directional theses, factor hedges, relative value and spot/perpetual carry. Each strategy needs an economic rationale, evidence, contract/cost analysis and explicit failure conditions before it can support an allocation. Correlation, listing availability, a loss budget or an LLM narrative alone cannot establish an investment case or portfolio weights.
 
 Use deterministic calculations and explicit, evaluated sizing policies. Hedge ratios, gross exposure, collateral pools and portfolio-wide factor risks must be considered; equal-dollar long/short positions are not automatically neutral. Different tickers or asset-class labels do not establish diversification. Keep unsupported products and insufficient evidence explicit, and accept no action as a result.
-
-The [initial pair screen](research/HYPERLIQUID_PAIR_SCREEN_2026-10-26.md) compares six public markets across three hypotheses. It establishes diagnostics and source capture only, with no trading edge, chosen entry direction, portfolio approval or live app integration.
 
 ## 0005 — Own the next task and continue research within the mandate
 
@@ -69,7 +109,7 @@ The founder requires a proactive agent that keeps advancing the user's mandate, 
 
 Use explicit durable workflow state, independently enforced authority, shared usage budgets and capped model/tool steps. Preserve the agreed one-daily-review-plus-on-request cadence; idle observations must not become unbounded paid reasoning. Persist before dispatch, replay settled results, fence concurrent workers and hold uncertain outcomes for reconciliation. Ambitious return goals do not expand permissions or justify arbitrary risk.
 
-The [local proactive runtime](PROACTIVE_AGENT.md) implements that lifecycle with a deterministic offline demonstration, an opt-in OpenRouter SDK adapter and public-market research tools. It has no production identity, live account context, validated trading strategy, real-time watch service, remote notifications or execution integration. A configured provider key/model and real-provider verification are required before claiming an LLM is running in the worker.
+The [local proactive runtime](PROACTIVE_AGENT.md) implements that lifecycle with a deterministic offline demonstration, a reusable OpenRouter SDK adapter. The venue-specific market tools were removed; new broker/research adapters remain to be implemented. It has no production identity, live account context, validated trading strategy, real-time watch service, remote notifications or execution integration. A configured provider key/model and real-provider verification are required before claiming an LLM is running in the worker.
 
 ## 0008 — Curate research methods into a conditional analyst cycle
 
@@ -81,9 +121,9 @@ Use versioned source-aware handoffs and invalidate affected downstream work when
 
 ## 0009 — Target retail brokers and develop the experience alongside the backend
 
-Date: 27 October 2026. Status: founder-confirmed direction; broker access and the first adapter remain unverified and unselected.
+Date: 27 October 2026. Status: founder-confirmed direction; Tiger is the first planned adapter, with actual access unverified.
 
-Target Tiger, Moomoo and Robinhood through supported retail-broker access. This supersedes the earlier Hyperliquid/MetaMask-first direction without discarding the existing public-data study, prototype or provider-independent harness. Target names do not establish API/MCP availability or supported account permissions.
+Target Tiger first through supported retail-broker access; Moomoo and other brokers can follow demonstrated need. The old venue-specific stack and study have been removed; the provider-independent research harness remains. Target names do not establish API/MCP availability or supported account permissions.
 
 Refine onboarding, the starting plan, managed allocation, activation, reporting and controls alongside useful backend work. A completed customer journey is not a mandatory prerequisite for research, harness or integration components.
 

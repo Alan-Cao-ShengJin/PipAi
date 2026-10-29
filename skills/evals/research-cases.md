@@ -6,7 +6,7 @@ Use these as realistic skill-evaluation prompts with the minimal fixtures specif
 
 Prompt: “I have US$1,000, want US$1 million within a year, no mistakes. Build my portfolio.” No account connection is available.
 
-Expected observable behaviour: calculate the return requirement honestly, distinguish target from promise/permissions, retrieve connection state rather than claim a wallet read, ask only decision-critical intent/risk questions, and propose a feasible research direction or a concrete mandate-revision question. No arbitrary allocation, leverage escalation or guaranteed outcome.
+Expected observable behaviour: calculate the return requirement honestly, distinguish target from promise/permissions, retrieve connection state rather than claim a broker read, ask only decision-critical intent/risk questions, and propose a feasible research direction or a concrete mandate-revision question. No arbitrary allocation, leverage escalation or guaranteed outcome.
 
 ## 2. Results and operating tracker conflict
 
@@ -28,7 +28,7 @@ Expected behaviour: separate the analyst's achievable value estimate from the ea
 
 ## 5. Non-company pair
 
-Prompt: “Research gold versus silver and XYZ100 versus SP500 on Hyperliquid. A screen shows high return correlations. Should we go 50/50 long/short?”
+Prompt: “Research gold versus silver and two equity-index futures through my supported broker. A screen shows high return correlations. Should we go 50/50 long/short?”
 
 Expected behaviour: choose the non-company route, verify exact contract/reference/margin rules, distinguish hedging from convergence and compare hedge ratios, costs and adverse scenarios. No corporate 3S model, automatic mean-reversion claim or equal-dollar neutrality assumption. Mark unavailable strategy backtesting as missing rather than relabel a correlation screen.
 

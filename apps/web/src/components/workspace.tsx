@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Check, LoaderCircle, MoreHorizontal, X } from "lucide-react";
 import { checkProposal, currentStep, DemoStateSchema, equityCents, questions, type Command, type DemoState, type Mandate } from "@pip/domain";
-import { WalletButton } from "./wallet-button";
-import type { WalletState } from "./browser-wallet";
-import { HyperliquidStatus } from "./hyperliquid-status";
+import { BrokerConversationActions, useBrokerConversation } from "./broker-conversation";
+import { brokerIntent } from "./broker-intent";
 
 type Action = Command extends infer C ? C extends Command ? Omit<C, "expectedRevision"> : never : never;
 const money = (cents: number, exact = false) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: exact ? 2 : 0 }).format(cents / 100);
@@ -17,14 +16,16 @@ function conversationTime(value: string) {
 }
 
 export function Workspace() {
+  const broker = useBrokerConversation();
   const [state, setState] = useState<DemoState | null>(null);
   const [draft, setDraft] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
   const [pendingAnswer, setPendingAnswer] = useState<string | null>(null);
-  const [walletState, setWalletState] = useState<WalletState | null>(null);
   const [awayFromLatest, setAwayFromLatest] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false), [summaryOpen, setSummaryOpen] = useState(false), [resetOpen, setResetOpen] = useState(false);
   const end = useRef<HTMLDivElement>(null), menu = useRef<HTMLDivElement>(null);
   const summary = useRef<HTMLDialogElement>(null), reset = useRef<HTMLDialogElement>(null), input = useRef<HTMLTextAreaElement>(null);
+  const brokerEntryHandled = useRef(false);
+  const previousBrokerPhase = useRef<string | undefined>(undefined);
   function scrollToLatest() {
     end.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "end" });
   }
@@ -41,7 +42,22 @@ export function Workspace() {
   }, []);
   useEffect(() => {
     scrollToLatest();
-  }, [state?.messages.length, pendingAnswer]);
+  }, [state?.messages.length, pendingAnswer, broker.state?.messages?.length, broker.state?.phase]);
+  useEffect(() => {
+    if (!state || !broker.state || brokerEntryHandled.current) return;
+    brokerEntryHandled.current = true;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("broker") === "tiger") {
+      url.searchParams.delete("broker"); window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      void broker.send({ action: "show" });
+    }
+  }, [broker.state, state?.user.id]);
+  useEffect(() => {
+    const phase = broker.state?.phase;
+    if (["starting", "authorizing", "choosing-account"].includes(previousBrokerPhase.current ?? "")
+      && ["connected", "disconnected", "error"].includes(phase ?? "")) requestAnimationFrame(() => input.current?.focus());
+    previousBrokerPhase.current = phase;
+  }, [broker.state?.phase]);
   useEffect(() => {
     if (!input.current) return;
     input.current.style.height = "auto";
@@ -71,8 +87,25 @@ export function Workspace() {
   const step = state ? currentStep(state.profile) : null, mandate = state?.mandate;
   const proposal = state?.proposal;
   const checks = state && proposal?.status === "proposed" ? checkProposal(state, proposal) : [];
+  const brokerTakingReply = ["starting", "authorizing", "choosing-account"].includes(broker.state?.phase ?? "");
+  const brokerMessages = (broker.state?.messages ?? []).filter(message => !state || message.createdAt >= state.createdAt);
+  const lastBrokerMessage = brokerMessages.at(-1)?.id;
+  const timeline = [
+    ...(state?.messages ?? []).map(message => ({ ...message, channel: "paper" as const })),
+    ...brokerMessages.map(message => ({ ...message, channel: "broker" as const })),
+  ].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const composerError = error ?? broker.error;
   async function answer(value: string) {
-    if (!step || busy) return;
+    if (!state || busy || broker.busy) return;
+    const intent = brokerIntent(value, broker.state, broker.visible || brokerMessages.length > 0);
+    if (intent?.kind === "help") { broker.setError(intent.message); return; }
+    if (intent?.kind === "command") {
+      setError(null);
+      if (await broker.send(intent.command)) setDraft("");
+      requestAnimationFrame(() => input.current?.focus()); return;
+    }
+    broker.setError(null);
+    if (!step) { setError("Use the paper-plan controls above, or type connect broker to manage your connection."); return; }
     setPendingAnswer(value);
     try {
       if (await run({ type: "answer", step, value })) {
@@ -80,15 +113,15 @@ export function Workspace() {
       }
     } finally { setPendingAnswer(null); }
   }
-  function submit(event: FormEvent) { event.preventDefault(); if (draft.trim() && !busy) void answer(draft.trim()); }
+  function submit(event: FormEvent) { event.preventDefault(); if (draft.trim() && !busy && !broker.busy) void answer(draft.trim()); }
 
   return <div className="pip-app">
     <a href="#conversation" className="skip-link">Skip to conversation</a>
     <header className="pip-header">
-      <div className="pip-header-brand"><a className="pip-brand" href="/" aria-label="Pip home">pip.</a><span className="pip-demo-label">Scripted paper demo</span></div>
-      <div className="pip-header-actions"><HyperliquidStatus refreshKey={walletState} /><WalletButton compact onChange={setWalletState} />
+      <div className="pip-header-brand"><a className="pip-brand" href="/" aria-label="Pip home">pip.</a><span className="pip-demo-label">Paper demo · broker preview</span></div>
+      <div className="pip-header-actions">
         <div className="pip-menu" ref={menu}><button className="icon-button" aria-label="More options" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><MoreHorizontal size={20} strokeWidth={1.6} /></button>
-          {menuOpen && <div className="pip-menu-items"><button disabled={!state} onClick={() => { setMenuOpen(false); setSummaryOpen(true); }}>Your summary</button><a href="/connect">Wallet settings</a><button disabled={!state || busy} onClick={() => { setMenuOpen(false); setResetOpen(true); }}>Start over…</button></div>}
+          {menuOpen && <div className="pip-menu-items"><button disabled={!state || broker.busy} onClick={() => { setMenuOpen(false); void broker.send({ action: "show" }); }}>Broker accounts</button><button disabled={!state} onClick={() => { setMenuOpen(false); setSummaryOpen(true); }}>Your summary</button><button disabled={!state || busy || brokerTakingReply} onClick={() => { setMenuOpen(false); setResetOpen(true); }}>Start over…</button></div>}
         </div>
       </div>
     </header>
@@ -98,20 +131,24 @@ export function Workspace() {
       {!state ? <div className="pip-loading" role="status"><LoaderCircle size={20} className="spin" /><span>Opening Pip…</span></div> : <>
         <time className="pip-conversation-time" dateTime={state.createdAt}>{conversationTime(state.createdAt)}</time>
         <div className="pip-messages" role="log" aria-label="Conversation with Pip" aria-live="polite" aria-relevant="additions">
-          {state.messages.map(message => <ChatMessage key={message.id} role={message.role} content={message.content} />)}
+          {timeline.map(message => <Fragment key={message.id}>
+            <ChatMessage role={message.role} content={message.content} />
+            {message.channel === "broker" && message.id === lastBrokerMessage && broker.state && <BrokerConversationActions state={broker.state} busy={broker.busy} send={broker.send} />}
+          </Fragment>)}
           {pendingAnswer && <>
             <ChatMessage role="user" content={pendingAnswer} />
             <div className="pip-replying" role="status"><span className="pip-typing" aria-hidden="true"><i /><i /><i /></span><span className="sr-only">Pip is preparing a reply</span></div>
           </>}
         </div>
-        {step && step !== "goal" && step !== "capitalCents" && <div className="pip-suggestions" aria-label="Suggested replies">{questions[step].choices.map(choice => <button key={choice.value} disabled={busy} onClick={() => void answer(choice.value)}>{choice.label}</button>)}</div>}
-        {mandate?.status === "draft" && <section className="inline-plan" aria-labelledby="plan-title"><span className="small-label">Paper plan</span><h2 id="plan-title">Here’s what we’ll work with.</h2>
+        {!brokerMessages.length && step === "goal" && <div className="pip-suggestions"><button disabled={busy || broker.busy} onClick={() => void broker.send({ action: "show" })}>Connect broker</button></div>}
+        {!brokerTakingReply && step && step !== "goal" && step !== "capitalCents" && <div className="pip-suggestions" aria-label="Suggested replies">{questions[step].choices.map(choice => <button key={choice.value} disabled={busy || broker.busy} onClick={() => void answer(choice.value)}>{choice.label}</button>)}</div>}
+        {!brokerTakingReply && mandate?.status === "draft" && <section className="inline-plan" aria-labelledby="plan-title"><span className="small-label">Paper plan</span><h2 id="plan-title">Here’s what we’ll work with.</h2>
           <div className="plan-glance"><span><strong>{money(mandate.capitalCents)}</strong> simulated capital</span><span>{riskLabels[mandate.risk]} · {mandate.horizon}</span></div>
           <PlanDetails mandate={mandate} />
           <button className="primary-button" disabled={busy} onClick={() => void run({ type: "approve-mandate", mandateId: mandate.id })}>Approve paper plan</button>
           <p className="fine-print">This approves simulated decisions only.</p>
         </section>}
-        {proposal?.status === "proposed" && <section className="inline-plan" aria-labelledby="proposal-title"><span className="small-label">Paper example</span><h2 id="proposal-title">{proposal.allocations.length ? "Try a starting allocation." : "Keep your paper capital where it is."}</h2>
+        {!brokerTakingReply && proposal?.status === "proposed" && <section className="inline-plan" aria-labelledby="proposal-title"><span className="small-label">Paper example</span><h2 id="proposal-title">{proposal.allocations.length ? "Try a starting allocation." : "Keep your paper capital where it is."}</h2>
           {proposal.allocations.map(row => <div className="simple-row" key={row.symbol}><span>Buy {row.symbol} spot</span><strong>{money(row.amountCents)}</strong></div>)}
           <details className="simple-details"><summary>Why this plan & its checks</summary><p>{proposal.rationale}</p><p>{proposal.opposingCase}</p><p>Example fees: {money(proposal.estimatedFeesCents, true)}. Invented prices dated 26 October 2026; these are not market quotes.</p>
             <ul className="simple-checks">{checks.map(c => <li key={c.name} className={c.passed ? "" : "blocked"}>{c.passed ? <Check size={14} /> : <X size={14} />}<span>{c.name}{!c.passed && `: ${c.detail}`}</span></li>)}</ul>
@@ -120,17 +157,17 @@ export function Workspace() {
           <button className="primary-button" disabled={busy || checks.some(c => !c.passed)} onClick={() => void run({ type: "apply-paper", proposalId: proposal.id })}>{proposal.allocations.length ? "Try this paper plan" : "Record no change"}</button>
           <p className="fine-print">Simulated money. No real order.</p>
         </section>}
-        {proposal?.status === "applied" && <div className="paper-follow-up"><button className="quiet-button" onClick={() => setSummaryOpen(true)}>View paper portfolio</button><button className="quiet-button" disabled={busy || state.usage.researchRuns >= 20} onClick={() => void run({ type: "review" })}>Review again</button></div>}
+        {!brokerTakingReply && proposal?.status === "applied" && <div className="paper-follow-up"><button className="quiet-button" onClick={() => setSummaryOpen(true)}>View paper portfolio</button><button className="quiet-button" disabled={busy || state.usage.researchRuns >= 20} onClick={() => void run({ type: "review" })}>Review again</button></div>}
       </>}
       <div ref={end} className="pip-thread-end" />
       </div></div>
       <div className="pip-composer-area"><div className="pip-composer-inner">
         {awayFromLatest && <button className="pip-jump-latest" aria-label="Jump to latest message" onClick={scrollToLatest}><ArrowDown size={18} strokeWidth={1.5} /></button>}
-        {error && <div className="pip-error" role="alert"><p>{error}</p><button className="icon-button" aria-label="Dismiss error" onClick={() => setError(null)}><X size={17} /></button>{!state && <button className="quiet-button" onClick={() => void load().catch((e: Error) => setError(e.message))}>Try again</button>}</div>}
+        {composerError && <div className="pip-error" role="alert"><p>{composerError}</p><button className="icon-button" aria-label="Dismiss error" onClick={() => { setError(null); broker.setError(null); }}><X size={17} /></button>{!state && <button className="quiet-button" onClick={() => void load().catch((e: Error) => setError(e.message))}>Try again</button>}</div>}
         <form className="pip-composer" onSubmit={submit}>
-          <label htmlFor="message" className="sr-only">{step ? questions[step].title : "Message Pip"}</label>
-          <textarea ref={input} id="message" rows={1} autoComplete="off" maxLength={1200} inputMode={step === "capitalCents" || step === "lossReviewPct" ? "decimal" : "text"} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (draft.trim() && !busy) void answer(draft.trim()); } }} placeholder={!state ? "Opening Pip…" : step === "goal" ? "Send a message" : step ? questions[step].placeholder : "Review your paper plan above to continue"} disabled={!state || !step || busy} />
-          <button className="pip-send" aria-label="Send message" disabled={!step || busy || !draft.trim()}>{busy ? <LoaderCircle size={18} className="spin" /> : <ArrowUp size={20} strokeWidth={1.8} />}</button>
+          <label htmlFor="message" className="sr-only">{brokerTakingReply ? "Broker connection reply" : step ? questions[step].title : "Message Pip"}</label>
+          <textarea ref={input} id="message" rows={1} autoComplete="off" maxLength={1200} inputMode="text" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (draft.trim() && !busy && !broker.busy) void answer(draft.trim()); } }} placeholder={!state ? "Opening Pip…" : broker.state?.phase === "choosing-account" ? "Choose an account or type its last four characters" : brokerTakingReply ? "Finish Tiger sign-in, or type cancel" : step === "goal" ? "Send a message" : step ? questions[step].placeholder : "Type connect broker, or use the paper plan above"} disabled={!state || busy || broker.busy} />
+          <button className="pip-send" aria-label="Send message" disabled={!state || busy || broker.busy || !draft.trim()}>{busy || broker.busy ? <LoaderCircle size={18} className="spin" /> : <ArrowUp size={20} strokeWidth={1.8} />}</button>
         </form>
       </div></div>
     </main>
@@ -144,7 +181,7 @@ export function Workspace() {
         <p className="fine-print">Scripted reviews: {state.usage.researchRuns} / 20 · Model cost: $0.00. No scheduled reviews are active.</p>
       </>}
     </dialog>
-    <dialog ref={reset} className="pip-reset" aria-labelledby="reset-title" onClose={() => setResetOpen(false)}><h2 id="reset-title">Start a new conversation?</h2><p>This resets this demo’s conversation and paper plan. Your wallet connection stays available.</p><div className="dialog-actions"><button className="secondary-button" disabled={busy} onClick={() => setResetOpen(false)}>Keep this one</button><button className="primary-button" disabled={busy} onClick={async () => { if (await run({ type: "reset" })) { setResetOpen(false); setDraft(""); } }}>Start over</button></div></dialog>
+    <dialog ref={reset} className="pip-reset" aria-labelledby="reset-title" onClose={() => setResetOpen(false)}><h2 id="reset-title">Start a new conversation?</h2><p>This resets this demo’s conversation and paper plan.</p><div className="dialog-actions"><button className="secondary-button" disabled={busy} onClick={() => setResetOpen(false)}>Keep this one</button><button className="primary-button" disabled={busy} onClick={async () => { if (await run({ type: "reset" })) { setResetOpen(false); setDraft(""); } }}>Start over</button></div></dialog>
   </div>;
 }
 

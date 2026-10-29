@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyCommand, CommandSchema, createDemo, currentStep, checkProposal, equityCents, type DemoState } from "./index";
+import { applyCommand, CommandSchema, createDemo, currentStep, checkProposal, DemoStateSchema, equityCents, type DemoState } from "./index";
 
 function onboard(horizon = "years", liquidity = "flexible"): DemoState {
   let state = createDemo();
@@ -13,6 +13,19 @@ function approved() {
   return applyCommand(state, { type: "approve-mandate", mandateId: state.mandate!.id, expectedRevision: state.revision });
 }
 describe("approval and authority", () => {
+  it("loads an existing demo session without carrying forward retired connection capabilities", () => {
+    const existing = approved();
+    const saved = {
+      ...existing,
+      capabilities: { liveExecution: false, walletConnected: false, liveMarketData: false, scriptedAgent: true },
+    };
+    const restored = DemoStateSchema.parse(saved);
+    expect(restored.capabilities).toEqual({ liveExecution: false, brokerConnected: false, liveMarketData: false, scriptedAgent: true });
+    expect(restored.profile).toEqual(existing.profile);
+    expect(restored.mandate).toEqual(existing.mandate);
+    expect(restored.portfolio).toEqual(existing.portfolio);
+    expect(restored.messages).toEqual(existing.messages);
+  });
   it("requires explicit approval before creating a portfolio", () => {
     const draft = onboard();
     expect(draft.mandate?.status).toBe("draft");

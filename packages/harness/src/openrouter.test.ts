@@ -19,9 +19,15 @@ function response(overrides: Record<string, unknown> = {}) {
 function transport(body: unknown, status = 200) {
   const fetcher = vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
   const client = new HTTPClient({ fetcher });
-  return { fetcher, model: new OpenRouterAdapter({ apiKey: "not-a-real-key", model: "test/model", httpClient: client }) };
+  return { fetcher, model: new OpenRouterAdapter({ apiKey: "not-a-real-key", model: "test/model", httpClient: client, mode: "inference" }) };
 }
 describe("OpenRouter SDK transport contract (mock HTTP only)", () => {
+  it("blocks generation before dispatch in connection-only mode", async () => {
+    const fetcher = vi.fn(async () => { throw new Error("No request should be made"); });
+    const model = new OpenRouterAdapter({ apiKey: "not-a-real-key", model: "test/model", httpClient: new HTTPClient({ fetcher }), mode: "connection-only" });
+    await expect(model.complete(request())).rejects.toMatchObject({ code: "INFERENCE_DISABLED" });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
   it("uses bounded JSON output, explicit model, fixed origin and no automatic retries/fallbacks", async () => {
     const x = transport(response()); const receipt = await x.model.complete(request());
     expect(receipt).toMatchObject({ output: { type: "example" }, usage: { inputTokens: 10, outputTokens: 5, costMicros: 1 }, finishReason: "stop" });

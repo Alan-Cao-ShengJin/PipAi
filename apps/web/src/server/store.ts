@@ -9,7 +9,7 @@ export const SESSION_SECONDS = 60 * 60 * 24 * 30;
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 const validToken = (token: string) => /^[a-f0-9]{64}$/.test(token);
 
-// One local process only. Postgres and wallet authentication belong to Stage 2.
+// One local process only. Shared Postgres storage and production authentication are planned.
 export class DemoStore {
   private db: DatabaseSync;
   constructor(path: string) {

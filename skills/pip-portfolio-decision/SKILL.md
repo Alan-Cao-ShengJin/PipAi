@@ -7,7 +7,7 @@ metadata:
 
 # Portfolio construction and decision
 
-Load the current approved mandate/version, fresh reconciled holdings, pending orders and reservations, allocation intent and available evidence. Retrieve observable account facts where connected. A wallet balance is not permission to deploy all funds. An unconnected or synthetic allocation cannot be described as a real account.
+Load the current approved mandate/version, fresh reconciled holdings, pending orders and reservations, allocation intent and available evidence. Retrieve observable account facts where connected. A broker balance is not permission to deploy all funds. An unconnected or synthetic allocation cannot be described as a real account.
 
 ## Qualify the evidence
 
